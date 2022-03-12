@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'homeScreen.dart';
+import 'signUpScreen.dart';
 
 /// Stateful class controlling the sign in page
 class SignInScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
         // Card containing app name and sign in button
         child: Card(
-          margin: const EdgeInsets.only(top: 175, bottom: 175, left: 30, right: 30),
+          margin: const EdgeInsets.only(top: 175, bottom: 105, left: 30, right: 30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -84,11 +85,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       )
                   ),
                   TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Don't have an account?",
-                        style: TextStyle(fontSize: 20, color: Colors.blueAccent, fontWeight: FontWeight.normal),
-                      )
+                      onPressed: () {signUp(context);},
+                    child: Text('Create an Account'),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      primary: Colors.teal,
+                    ),
                   )
                 ],
               )
@@ -129,4 +131,11 @@ class _SignInScreenState extends State<SignInScreen> {
           context, MaterialPageRoute(builder: (context) => HomeScreen()));;
     } on FirebaseAuthException catch (e) { }
   }
+
+  Future<void> signUp(BuildContext context) async {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SignUpScreen()));;
+  }
+
+
 }
