@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
 import 'addCourseScreen.dart';
+import 'friendsListScreen.dart';
 
 /// Stateful class controlling the sign in page
 class HomeScreen extends StatefulWidget {
@@ -56,6 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
                   )
               ),
+              ElevatedButton(
+                  onPressed: () {openFriendsList();},
+                  child: Text(
+                      "Friends List",
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
+                  )
+              ),
             ],
           ),
         ),
@@ -81,5 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void goAddCourse() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => AddCourseScreen()));
+  }
+
+  void openFriendsList() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => FriendsListScreen()));
   }
 }

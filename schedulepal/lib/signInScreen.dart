@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,6 +15,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   // Project's Firebase authentication instance
+  final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final emailController = TextEditingController();
@@ -118,6 +120,14 @@ class _SignInScreenState extends State<SignInScreen> {
 
       // Navigates to the home page screen once the user has signed in
       if (result != null) {
+        var displayName = user!.displayName?.toLowerCase().split(" ");
+        var name = "${displayName?.first} ${displayName?.last}";
+
+        var userRef = await store.collection("User").doc(user.uid);
+        if (!(await userRef.get()).exists) {
+          await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+        }
+        
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       }
@@ -136,6 +146,4 @@ class _SignInScreenState extends State<SignInScreen> {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => SignUpScreen()));;
   }
-
-
 }

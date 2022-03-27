@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
@@ -12,6 +13,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen>{
+  final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final newEmailController = TextEditingController();
@@ -108,7 +110,15 @@ class _SignUpScreenState extends State<SignUpScreen>{
       passwordsDontMatch();
     } else {
       try {
-        await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
+        var userCred = await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
+        var displayName = userCred.user!.displayName?.toLowerCase().split(" ");
+        var name = "${displayName?.first} ${displayName?.last}";
+
+        var userRef = await store.collection("User").doc(userCred.user!.uid);
+        if (!(await userRef.get()).exists) {
+          await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+        }
+
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));;
       } on FirebaseAuthException catch (e) { }
