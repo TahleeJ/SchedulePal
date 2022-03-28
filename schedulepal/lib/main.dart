@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
 
+
 /// App's entry point
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,7 @@ class _GoogleSignInState extends State<GoogleSignIn> {
       title: 'Really Simple To Do',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.pink,
       ),
       // Sets the landing page of the app to be the sign in screen
       home: const SignInScreen(),

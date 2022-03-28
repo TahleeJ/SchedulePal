@@ -28,13 +28,15 @@ class _SignUpScreenState extends State<SignUpScreen>{
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.greenAccent,
-              Colors.yellow,
-            ],
-          ),
+          color: Colors.white,
+
+          // gradient: LinearGradient(
+          //   colors: [
+          //     Colors.blue,
+          //     Colors.greenAccent,
+          //     Colors.yellow,
+          //   ],
+
         ),
         // Card containing app name and sign in button
         child: Card(
@@ -85,14 +87,16 @@ class _SignUpScreenState extends State<SignUpScreen>{
                       child: Text(
                           "Create",
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
-                      )
+                      ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                   ElevatedButton(
                       onPressed: () {goBack(context);},
                       child: Text(
                           "<--",
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
-                      )
+                      ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                 ],
               )
