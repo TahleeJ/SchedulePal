@@ -25,33 +25,24 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-          backgroundColor: Colors.pink,
+        appBar: AppBar(
+          backgroundColor: Colors.pink[300],
           centerTitle: true,
           title: const Text("Schedule Pal"),
+          leading: IconButton(onPressed: () =>{goHome()}, icon: Icon(Icons.arrow_back),),
           actions: <Widget>[
             // Sign out button
-            Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  // Sign out the user and navigate to the sign in screen upon being clicked
-                    onTap: () { _signOut(); },
-                    child: Icon(Icons.exit_to_app_outlined, size: 26.0),
-                )
-            )
-          ]
-      ),
+            IconButton(onPressed: () =>{openFriendsPendingList()}, icon: Icon(Icons.hourglass_bottom_rounded, size: 30), tooltip: "Pending Friends",),
+            IconButton(onPressed: () => {}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
+              tooltip: "Sign Out",)
+
+          ],
+        ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.greenAccent,
-              Colors.yellow,
-            ],
-          ),
+          color: Colors.white
         ),
         child: Card(
           margin: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
@@ -61,24 +52,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               StatefulBuilder(builder: (context, _setState) {
                 return Row(
                     children: <Widget>[
-                      SizedBox(width: 20),
-                      ElevatedButton(
-                          onPressed: () {goHome();},
-                          child: Text("<--", style: TextStyle(fontSize: 24))
-                      ),
                       SizedBox(width: 15),
                       Text(
                         "Friends List",
                         style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                       ),
-                      GestureDetector(
-                          onTap: () {
-                            _setState(() {
-                              openFriendsPendingList();
-                            });
-                          },
-                          child: Icon(Icons.hourglass_bottom_rounded, size: 30, color: Colors.blueGrey)
-                      )
+
                     ]
                 );
               }),

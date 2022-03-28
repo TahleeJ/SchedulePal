@@ -30,13 +30,14 @@ class _SignInScreenState extends State<SignInScreen> {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.greenAccent,
-              Colors.yellow,
-            ],
-          ),
+          color: Colors.white,
+          // gradient: LinearGradient(
+          //   colors: [
+          //     Colors.blue,
+          //     Colors.greenAccent,
+          //     Colors.yellow,
+          //   ],
+          // ),
         ),
         // Card containing app name and sign in button
         child: Card(
@@ -56,8 +57,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     onPressed: () {googleSignIn(context);},
                     child: Text(
                       "Sign in with Google",
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
-                    )
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
+                    ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -83,15 +85,16 @@ class _SignInScreenState extends State<SignInScreen> {
                     onPressed: () {emailSignIn(context, emailController.text, passwordController.text);},
                       child: Text(
                           "Log in",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
-                      )
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
+                      ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                   TextButton(
                       onPressed: () {signUp(context);},
                     child: Text('Create an Account'),
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      primary: Colors.teal,
+                      primary: Colors.blueAccent,
                     ),
                   )
                 ],

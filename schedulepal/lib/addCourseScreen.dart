@@ -32,17 +32,24 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Colors.pink[300],
+        centerTitle: true,
+        title: const Text("Schedule Pal"),
+        leading: IconButton(onPressed: () =>{goHome()}, icon: Icon(Icons.arrow_back),),
+        actions: <Widget>[
+          // Sign out button
+          IconButton(onPressed: () =>{}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
+          IconButton(onPressed: () => {}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
+            tooltip: "Sign Out",)
+
+        ],
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.greenAccent,
-              Colors.yellow,
-            ],
-          ),
+          color: Colors.white
         ),
         // Card containing page name and course search
         child: SingleChildScrollView(
@@ -54,14 +61,10 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
               children: [
                 Row(
                   children: <Widget>[
-                    SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: () {goHome();},
-                      child: Text("<--", style: TextStyle(fontSize: 24))
-                    ),
                     SizedBox(width: 15),
                     Text(
                       "Course Search",
+                      textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                     ),
                   ]
