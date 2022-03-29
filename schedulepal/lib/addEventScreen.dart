@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class AddEventScreen extends StatefulWidget {
 class _AddEventScreenState extends State<AddEventScreen> {
   // Project's Firebase authentication instance
   final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore store = FirebaseFirestore.instance;
 
   final newEventNameController = TextEditingController();
   final newEventDescriptionController = TextEditingController();
@@ -103,7 +105,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         )
                     ),
                     ElevatedButton(
-                        onPressed: () {goBack(context);},
+                        onPressed: () async {
+                          var userID = auth.currentUser?.uid;
+                          var userRef = await store.collection("User").doc(userID);
+                          await userRef.update({'events': newEventNameController.text});
+                          goBack(context);
+                          },
                         child: Text(
                             "Save",
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
@@ -251,7 +258,7 @@ Widget chooseLocation(BuildContext context) {
       ),
       actions: <Widget>[
         new FlatButton(
-          onPressed: () {
+          onPressed: () async {
             Navigator.of(context).pop();
           },
           textColor: Theme.of(context).primaryColor,

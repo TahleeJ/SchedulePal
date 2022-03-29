@@ -94,7 +94,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
                     ),
                   ),
                   ElevatedButton(
-                      onPressed: () {createAccount(context, newEmailController.text, newPasswordController.text, confirmNewPasswordController.text);},
+                      onPressed: () {createAccount(context, newEmailController.text, newPasswordController.text, confirmNewPasswordController.text, newNameController.text);},
                       child: Text(
                           "Create",
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
@@ -118,23 +118,24 @@ class _SignUpScreenState extends State<SignUpScreen>{
     );
   }
 
-  Future<void> createAccount(BuildContext context, email, String password, String confirmPassword) async {
+  Future<void> createAccount(BuildContext context, email, String password, String confirmPassword, String nameEntered) async {
     if (password == "" || confirmPassword == "") {
       passwordEmpty();
     } else if (password.compareTo(confirmPassword) != 0) {
       passwordsDontMatch();
     } else {
       try {
-        //print(auth.currentUser?.uid);
-        //CollectionReference users = FirebaseFirestore.instance.collection('User');
-
         var userCred = await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
         var displayName = userCred.user!.displayName?.toLowerCase().split(" ");
         var name = "${displayName?.first} ${displayName?.last}";
 
         var userRef = await store.collection("User").doc(userCred.user!.uid);
         if (!(await userRef.get()).exists) {
-          await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+          if (name == "null null") {
+            await userRef.set({"name": nameEntered, "friends": {}, "events": {}}, SetOptions(merge: false));
+          } else {
+            await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+          }
         }
 
         Navigator.pushReplacement(
