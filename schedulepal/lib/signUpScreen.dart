@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
@@ -14,6 +15,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen>{
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+  final newNameController = TextEditingController();
   final newEmailController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmNewPasswordController = TextEditingController();
@@ -47,9 +49,19 @@ class _SignUpScreenState extends State<SignUpScreen>{
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    child: TextFormField(
+                      controller: newNameController,
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Firstname Lastname',
+                      ),
+                    ),
+                  ),
                   //Sign in button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: TextFormField(
                       controller: newEmailController,
                       decoration: const InputDecoration(
@@ -59,7 +71,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: TextFormField(
                       controller: newPasswordController,
                       decoration: const InputDecoration(
@@ -69,7 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: TextFormField(
                       controller: confirmNewPasswordController,
                       decoration: const InputDecoration(
@@ -82,14 +94,14 @@ class _SignUpScreenState extends State<SignUpScreen>{
                       onPressed: () {createAccount(context, newEmailController.text, newPasswordController.text, confirmNewPasswordController.text);},
                       child: Text(
                           "Create",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                       )
                   ),
                   ElevatedButton(
                       onPressed: () {goBack(context);},
                       child: Text(
                           "<--",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                       )
                   ),
                 ],
@@ -109,6 +121,8 @@ class _SignUpScreenState extends State<SignUpScreen>{
     } else {
       try {
         await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
+        //print(auth.currentUser?.uid);
+        //CollectionReference users = FirebaseFirestore.instance.collection('User');
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));;
       } on FirebaseAuthException catch (e) { }
