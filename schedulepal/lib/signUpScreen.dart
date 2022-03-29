@@ -121,8 +121,6 @@ class _SignUpScreenState extends State<SignUpScreen>{
     } else {
       try {
         await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
-        //print(auth.currentUser?.uid);
-        //CollectionReference users = FirebaseFirestore.instance.collection('User');
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));;
       } on FirebaseAuthException catch (e) { }
