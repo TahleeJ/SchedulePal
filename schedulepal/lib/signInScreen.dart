@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,6 +15,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   // Project's Firebase authentication instance
+  final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final emailController = TextEditingController();
@@ -28,13 +30,14 @@ class _SignInScreenState extends State<SignInScreen> {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.greenAccent,
-              Colors.yellow,
-            ],
-          ),
+          color: Colors.white,
+          // gradient: LinearGradient(
+          //   colors: [
+          //     Colors.blue,
+          //     Colors.greenAccent,
+          //     Colors.yellow,
+          //   ],
+          // ),
         ),
         // Card containing app name and sign in button
         child: Card(
@@ -54,8 +57,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     onPressed: () {googleSignIn(context);},
                     child: Text(
                       "Sign in with Google",
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
-                    )
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
+                    ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -81,15 +85,16 @@ class _SignInScreenState extends State<SignInScreen> {
                     onPressed: () {emailSignIn(context, emailController.text, passwordController.text);},
                       child: Text(
                           "Log in",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
-                      )
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
+                      ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                   TextButton(
                       onPressed: () {signUp(context);},
                     child: Text('Create an Account'),
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      primary: Colors.teal,
+                      primary: Colors.blueAccent,
                     ),
                   )
                 ],
@@ -118,6 +123,14 @@ class _SignInScreenState extends State<SignInScreen> {
 
       // Navigates to the home page screen once the user has signed in
       if (result != null) {
+        var displayName = user!.displayName?.toLowerCase().split(" ");
+        var name = "${displayName?.first} ${displayName?.last}";
+
+        var userRef = await store.collection("User").doc(user.uid);
+        if (!(await userRef.get()).exists) {
+          await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+        }
+        
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       }
@@ -136,6 +149,4 @@ class _SignInScreenState extends State<SignInScreen> {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => SignUpScreen()));;
   }
-
-
 }

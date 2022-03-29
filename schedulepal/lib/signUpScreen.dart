@@ -13,6 +13,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen>{
+  final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final newNameController = TextEditingController();
@@ -28,13 +29,15 @@ class _SignUpScreenState extends State<SignUpScreen>{
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.greenAccent,
-              Colors.yellow,
-            ],
-          ),
+          color: Colors.white,
+
+          // gradient: LinearGradient(
+          //   colors: [
+          //     Colors.blue,
+          //     Colors.greenAccent,
+          //     Colors.yellow,
+          //   ],
+
         ),
         // Card containing app name and sign in button
         child: Card(
@@ -94,15 +97,17 @@ class _SignUpScreenState extends State<SignUpScreen>{
                       onPressed: () {createAccount(context, newEmailController.text, newPasswordController.text, confirmNewPasswordController.text);},
                       child: Text(
                           "Create",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                      )
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
+                      ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                   ElevatedButton(
                       onPressed: () {goBack(context);},
                       child: Text(
                           "<--",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                      )
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
+                      ),
+                    style: ElevatedButton.styleFrom(primary: Colors.pink[300]),
                   ),
                 ],
               )
@@ -120,9 +125,18 @@ class _SignUpScreenState extends State<SignUpScreen>{
       passwordsDontMatch();
     } else {
       try {
-        await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
         //print(auth.currentUser?.uid);
         //CollectionReference users = FirebaseFirestore.instance.collection('User');
+
+        var userCred = await auth.createUserWithEmailAndPassword(email: email, password: password.toString());
+        var displayName = userCred.user!.displayName?.toLowerCase().split(" ");
+        var name = "${displayName?.first} ${displayName?.last}";
+
+        var userRef = await store.collection("User").doc(userCred.user!.uid);
+        if (!(await userRef.get()).exists) {
+          await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+        }
+
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));;
       } on FirebaseAuthException catch (e) { }
