@@ -7,8 +7,7 @@ import 'signInScreen.dart';
 import 'addCourseScreen.dart';
 import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
-import 'package:time_planner/time_planner.dart';
-
+import 'package:flutter_week_view/flutter_week_view.dart';
 DateTime get _now => DateTime.now();
 /// Stateful class controlling the sign in page
 class HomeScreen extends StatefulWidget {
@@ -20,46 +19,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
-  List<TimePlannerTask> tasks = [];
-
-  void _addObject(BuildContext context) {
-    List<Color?> colors = [
-      Colors.purple,
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.lime[600]
-    ];
-
-    setState(() {
-      tasks.add(
-        TimePlannerTask(
-          color: colors[Random().nextInt(colors.length)],
-          dateTime: TimePlannerDateTime(
-              day: Random().nextInt(14),
-              hour: Random().nextInt(18) + 6,
-              minutes: Random().nextInt(60)),
-          minutesDuration: Random().nextInt(90) + 30,
-          daysDuration: Random().nextInt(4) + 1,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('You click on time planner object')));
-          },
-          child: Text(
-            'this is a demo',
-            style: TextStyle(color: Colors.grey[350], fontSize: 12),
-          ),
-        ),
-      );
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Random task added to time planner!')));
-  }
-
+  List<FlutterWeekViewEvent> events = [];
   /// Builder for the homepage screen
   @override
   Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
+    DateTime date = DateTime(now.year, now.month, now.day);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.pink[300],
@@ -71,55 +36,31 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(onPressed: () => {}, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
 
-            tooltip: "Sign Out",)
+            tooltip: "Sign Out",),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                DateTime start = DateTime(now.year, now.month, now.day, Random().nextInt(24), Random().nextInt(60));
+                events.add(FlutterWeekViewEvent(
+                  title: 'Event ' + (events.length + 1).toString(),
+                  start: start,
+                  end: start.add(const Duration(hours: 1)),
+                  description: 'A description.',
+                ));
+              });
+            },
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+          ),
 
         ],
       ),
-      body: Center(
-        child: TimePlanner(
-          // time will be start at this hour on table
-          startHour: 6,
-          // time will be end at this hour on table
-          endHour: 23,
-          // each header is a column and a day
-          headers: [
-            TimePlannerTitle(
-              //date: "3/10/2021",
-              title: "sunday",
-            ),
-            TimePlannerTitle(
-              //date: "3/11/2021",
-              title: "monday",
-            ),
-            TimePlannerTitle(
-              ////date: "3/12/2021",
-              title: "tuesday",
-            ),
-            TimePlannerTitle(
-              //date: "3/12/2021",
-              title: "wednesday",
-            ),
-            TimePlannerTitle(
-              //date: "3/12/2021",
-              title: "thursday",
-            ),
-            TimePlannerTitle(
-              //date: "3/12/2021",
-              title: "friday",
-            ),
-            TimePlannerTitle(
-              //date: "3/12/2021",
-              title: "saturday",
-            )
-          ],
-          // List of task will be show on the time planner
-          tasks: tasks,
-          style: TimePlannerStyle(
-            // cellHeight: 60,
-            // cellWidth: 60,
-            showScrollBar: true,
-          ),
-        ),
+      body: WeekView(
+          initialTime: const HourMinute(hour: 7).atDate(DateTime.now()),
+          dates: [date.subtract(const Duration(days: 1)), date, date.add(const Duration(days: 1))],
+          events: events
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAlertDialog(context),
