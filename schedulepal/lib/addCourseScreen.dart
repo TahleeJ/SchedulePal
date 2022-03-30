@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'signInScreen.dart';
+import 'friendsListScreen.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -38,10 +41,9 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
         title: const Text("Schedule Pal"),
         leading: IconButton(onPressed: () =>{goHome()}, icon: Icon(Icons.arrow_back),),
         actions: <Widget>[
-          // Sign out button
-          IconButton(onPressed: () =>{}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
-          IconButton(onPressed: () => {}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
-            tooltip: "Sign Out",)
+          IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
+          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friends List"),
+          IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0), tooltip: "Sign Out")
 
         ],
       ),
@@ -165,13 +167,32 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
             ),
           ),
         ),
-      ),
+      )
     );
   }
   /// Navigates back to the home screen
   void goHome() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => HomeScreen()));
+  }
+
+  /// Signs out the currently signed in user and navigates to the sign in screen
+  Future<void> _signOut() async {
+    await auth.signOut();
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    googleSignIn.disconnect();
+    goSignIn();
+  }
+
+  /// Navigates to the sign in screen
+  void goSignIn() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SignInScreen()));
+  }
+
+  void openFriendsList() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => FriendsListScreen()));
   }
 }
 
@@ -237,3 +258,4 @@ Future<List<Course>> fetchCourses(String query) async {
     throw ('Course not found');
   }
 }
+

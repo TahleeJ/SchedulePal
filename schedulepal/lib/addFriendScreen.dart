@@ -33,12 +33,11 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
           backgroundColor: Colors.pink[300],
           centerTitle: true,
           title: const Text("Schedule Pal"),
-          leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back),),
+          leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back)),
           actions: <Widget>[
-            // Sign out button
-            IconButton(onPressed: () =>{}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
-            IconButton(onPressed: () => {}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
-              tooltip: "Sign Out",)
+            IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
+            IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
+            IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ), tooltip: "Sign Out")
 
           ],
         ),
@@ -101,22 +100,6 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                 ],
               ),
             )
-        ),
-        floatingActionButton: Stack(
-            children: [
-              Positioned(
-                  right: 100,
-                  left: 100,
-                  bottom: 20,
-                  child: FloatingActionButton(
-                    heroTag: "addFriendButton",
-                    // Navigate to the create task page upon pressing the button
-                    onPressed: goHome,
-                    child: const Icon(Icons.home),
-                    backgroundColor: Colors.pink,
-                  )
-              ),
-            ]
         )
     );
   }
