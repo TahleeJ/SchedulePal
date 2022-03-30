@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
 import 'addCourseScreen.dart';
+import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
 import 'package:time_planner/time_planner.dart';
 
@@ -68,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Sign out button
           IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
+
             tooltip: "Sign Out",)
 
         ],
@@ -124,8 +126,10 @@ class _HomeScreenState extends State<HomeScreen> {
         tooltip: 'Add random task',
         child: Icon(Icons.add),
       ),
+
     );
   }
+
 
   /// Signs out the currently signed in user and navigates to the sign in screen
   Future<void> _signOut() async {
@@ -145,6 +149,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void goAddCourse() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => AddCourseScreen()));
+  }
+
+  void goCreateEventPage() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => AddEventScreen()));
   }
 
   void openFriendsList() {

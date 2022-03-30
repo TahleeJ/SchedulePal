@@ -16,6 +16,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
   final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+  final newNameController = TextEditingController();
   final newEmailController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmNewPasswordController = TextEditingController();
@@ -51,9 +52,19 @@ class _SignUpScreenState extends State<SignUpScreen>{
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    child: TextFormField(
+                      controller: newNameController,
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Firstname Lastname',
+                      ),
+                    ),
+                  ),
                   //Sign in button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: TextFormField(
                       controller: newEmailController,
                       decoration: const InputDecoration(
@@ -63,7 +74,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: TextFormField(
                       controller: newPasswordController,
                       decoration: const InputDecoration(
@@ -73,7 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: TextFormField(
                       controller: confirmNewPasswordController,
                       decoration: const InputDecoration(
@@ -83,7 +94,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
                     ),
                   ),
                   ElevatedButton(
-                      onPressed: () {createAccount(context, newEmailController.text, newPasswordController.text, confirmNewPasswordController.text);},
+                      onPressed: () {createAccount(context, newEmailController.text, newPasswordController.text, confirmNewPasswordController.text, newNameController.text);},
                       child: Text(
                           "Create",
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal)
@@ -107,7 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
     );
   }
 
-  Future<void> createAccount(BuildContext context, email, String password, String confirmPassword) async {
+  Future<void> createAccount(BuildContext context, email, String password, String confirmPassword, String nameEntered) async {
     if (password == "" || confirmPassword == "") {
       passwordEmpty();
     } else if (password.compareTo(confirmPassword) != 0) {
@@ -120,7 +131,11 @@ class _SignUpScreenState extends State<SignUpScreen>{
 
         var userRef = await store.collection("User").doc(userCred.user!.uid);
         if (!(await userRef.get()).exists) {
-          await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+          if (name == "null null") {
+            await userRef.set({"name": nameEntered, "friends": {}, "events": {}}, SetOptions(merge: false));
+          } else {
+            await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
+          }
         }
 
         Navigator.pushReplacement(
