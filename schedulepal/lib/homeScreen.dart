@@ -61,107 +61,55 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.pink[300],
-          centerTitle: true,
-          title: const Text("Schedule Pal"),
-          actions: <Widget>[
-            // Sign out button
-            IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
-            IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
+        backgroundColor: Colors.pink[300],
+        centerTitle: true,
+        title: const Text("Schedule Pal"),
+        actions: <Widget>[
+          // Sign out button
+          IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
+          IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
             tooltip: "Sign Out",)
 
-          ],
+        ],
       ),
       body: Center(
         child: TimePlanner(
+          // time will be start at this hour on table
           startHour: 6,
+          // time will be end at this hour on table
           endHour: 23,
+          // each header is a column and a day
           headers: [
             TimePlannerTitle(
-              date: "3/10/2021",
+              //date: "3/10/2021",
               title: "sunday",
             ),
             TimePlannerTitle(
-              date: "3/11/2021",
+              //date: "3/11/2021",
               title: "monday",
             ),
             TimePlannerTitle(
-              date: "3/12/2021",
+              ////date: "3/12/2021",
               title: "tuesday",
             ),
             TimePlannerTitle(
-              date: "3/13/2021",
+              //date: "3/12/2021",
               title: "wednesday",
             ),
             TimePlannerTitle(
-              date: "3/14/2021",
+              //date: "3/12/2021",
               title: "thursday",
             ),
             TimePlannerTitle(
-              date: "3/15/2021",
+              //date: "3/12/2021",
               title: "friday",
             ),
             TimePlannerTitle(
-              date: "3/16/2021",
+              //date: "3/12/2021",
               title: "saturday",
-            ),
-            TimePlannerTitle(
-              date: "3/17/2021",
-              title: "sunday",
-            ),
-            TimePlannerTitle(
-              date: "3/18/2021",
-              title: "monday",
-            ),
-            TimePlannerTitle(
-              date: "3/19/2021",
-              title: "tuesday",
-            ),
-            TimePlannerTitle(
-              date: "3/20/2021",
-              title: "wednesday",
-            ),
-            TimePlannerTitle(
-              date: "3/21/2021",
-              title: "thursday",
-            ),
-            TimePlannerTitle(
-              date: "3/22/2021",
-              title: "friday",
-            ),
-            TimePlannerTitle(
-              date: "3/23/2021",
-              title: "saturday",
-            ),
-            TimePlannerTitle(
-              date: "3/24/2021",
-              title: "tuesday",
-            ),
-            TimePlannerTitle(
-              date: "3/25/2021",
-              title: "wednesday",
-            ),
-            TimePlannerTitle(
-              date: "3/26/2021",
-              title: "thursday",
-            ),
-            TimePlannerTitle(
-              date: "3/27/2021",
-              title: "friday",
-            ),
-            TimePlannerTitle(
-              date: "3/28/2021",
-              title: "saturday",
-            ),
-            TimePlannerTitle(
-              date: "3/29/2021",
-              title: "friday",
-            ),
-            TimePlannerTitle(
-              date: "3/30/2021",
-              title: "saturday",
-            ),
+            )
           ],
+          // List of task will be show on the time planner
           tasks: tasks,
           style: TimePlannerStyle(
             // cellHeight: 60,
@@ -171,8 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        onPressed: () => goAddCourse(),
         //onPressed: () => _addObject(context),
-        onPressed: () {goAddCourse();},
         tooltip: 'Add random task',
         child: Icon(Icons.add),
       ),
