@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'signInScreen.dart';
+import 'friendsListScreen.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -17,7 +21,9 @@ class AddCourseScreen extends StatefulWidget {
 
 class _AddCourseScreenState extends State<AddCourseScreen> {
   // Project's Firebase authentication instance
+  final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
+
   Future<List<Course>>? courses;
   String searchString = '';
 
@@ -38,10 +44,9 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
         title: const Text("Schedule Pal"),
         leading: IconButton(onPressed: () =>{goHome()}, icon: Icon(Icons.arrow_back),),
         actions: <Widget>[
-          // Sign out button
-          IconButton(onPressed: () =>{}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List",),
-          IconButton(onPressed: () => {}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
-            tooltip: "Sign Out",)
+          IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
+          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friends List"),
+          IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0), tooltip: "Sign Out")
 
         ],
       ),
@@ -103,52 +108,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                               itemCount: courses.length,
                               itemBuilder: (ctx, index) {
                                 Course course = courses[index];
-                                return Card(
-                                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: <Widget>[
-                                      Column(
-                                        children: <Widget>[
-                                          Icon(Icons.book),
-                                        ]
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        children: <Widget>[
-                                          Text(course.number, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                                          Text(course.title, style: TextStyle(fontSize: 10)),
-                                        ]
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        children: <Widget>[
-                                          Text(course.instructors, style: TextStyle(fontSize: 8)),
-                                          Text(course.location, style: TextStyle(fontSize: 8)),
-                                          Text(course.time, style: TextStyle(fontSize: 8)),
-                                          Text(course.days, style: TextStyle(fontSize: 8)),
-                                        ]
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        children: <Widget>[
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(5)
-                                            ),
-                                            child: const Icon(Icons.add, size: 20),
-                                            onPressed: () {
-                                              // ************************************
-                                              // UPDATE FIREBASE DB OF USER'S COURSES
-                                              // ************************************
-                                            },
-                                          ),
-                                        ]
-                                      ),
-                                    ]
-                                  )
-                                );
+                                return CourseWidget(course, auth, store);
                               },
                             );
                           }
@@ -165,13 +125,99 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
             ),
           ),
         ),
-      ),
+      )
     );
   }
+
   /// Navigates back to the home screen
   void goHome() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => HomeScreen()));
+  }
+
+  /// Signs out the currently signed in user and navigates to the sign in screen
+  Future<void> _signOut() async {
+    await auth.signOut();
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    googleSignIn.disconnect();
+    goSignIn();
+  }
+
+  /// Navigates to the sign in screen
+  void goSignIn() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SignInScreen()));
+  }
+
+  void openFriendsList() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => FriendsListScreen()));
+  }
+
+}
+
+/// Course Card Custom Widget
+class CourseWidget extends StatelessWidget {
+  CourseWidget(this.course, this.auth, this.store);
+
+  final Course course;
+  final FirebaseFirestore store;
+  final FirebaseAuth auth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Column(
+                  children: <Widget>[
+                    Icon(Icons.book),
+                  ]
+              ),
+              Spacer(),
+              Column(
+                  children: <Widget>[
+                    Text(course.number, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text(course.title, style: TextStyle(fontSize: 10)),
+                  ]
+              ),
+              Spacer(),
+              Column(
+                  children: <Widget>[
+                    Text(course.instructors, style: TextStyle(fontSize: 8)),
+                    Text(course.location, style: TextStyle(fontSize: 8)),
+                    Text(course.time, style: TextStyle(fontSize: 8)),
+                    Text(course.days, style: TextStyle(fontSize: 8)),
+                  ]
+              ),
+              Spacer(),
+              Column(
+                  children: <Widget>[
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(5)
+                      ),
+                      child: const Icon(Icons.add, size: 20),
+                      onPressed: () {
+                        handleAddCourse();
+                      },
+                    ),
+                  ]
+              ),
+            ]
+        )
+    );
+  }
+
+  Future<void> handleAddCourse() async {
+    var userId = auth.currentUser!.uid;
+    var userRef = store.collection("User").doc(userId);
+    List<dynamic> courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
+    courseList.add(course.json);
+    await userRef.update({"courses": courseList});
   }
 }
 
@@ -188,6 +234,7 @@ class Course {
   final time;
   final title;
   final type;
+  final json;
 
   Course({
     required this.crn,
@@ -202,6 +249,7 @@ class Course {
     required this.time,
     required this.title,
     required this.type,
+    required this.json,
   });
 
 
@@ -219,8 +267,10 @@ class Course {
       time: json['time'],
       title: json['title'],
       type: json['type'],
+      json: json,
     );
   }
+
 }
 
 Future<List<Course>> fetchCourses(String query) async {
@@ -237,3 +287,4 @@ Future<List<Course>> fetchCourses(String query) async {
     throw ('Course not found');
   }
 }
+

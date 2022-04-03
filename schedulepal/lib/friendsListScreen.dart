@@ -31,10 +31,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
           title: const Text("Schedule Pal"),
           leading: IconButton(onPressed: () =>{goHome()}, icon: Icon(Icons.arrow_back),),
           actions: <Widget>[
-            // Sign out button
-            IconButton(onPressed: () =>{openFriendsPendingList()}, icon: Icon(Icons.hourglass_bottom_rounded, size: 30), tooltip: "Pending Friends",),
-            IconButton(onPressed: () => {}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
-              tooltip: "Sign Out",)
+            IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
+            IconButton(onPressed: () =>{openFriendsPendingList()}, icon: Icon(Icons.hourglass_bottom_rounded, size: 30), tooltip: "Pending Friends"),
+            IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0), tooltip: "Sign Out")
 
           ],
         ),
@@ -101,19 +100,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                 child: const Icon(Icons.person_add_alt_outlined),
                 backgroundColor: Colors.pink,
               )
-          ),
-          Positioned(
-              right: 100,
-              left: 100,
-              bottom: 20,
-              child: FloatingActionButton(
-                heroTag: "homeButton",
-                // Navigate to the create task page upon pressing the button
-                onPressed: goHome,
-                child: const Icon(Icons.home),
-                backgroundColor: Colors.pink,
-              )
-          ),
+          )
         ]
       )
     );
