@@ -8,6 +8,7 @@ import 'addCourseScreen.dart';
 import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
+
 DateTime get _now => DateTime.now();
 /// Stateful class controlling the sign in page
 class HomeScreen extends StatefulWidget {
@@ -42,10 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() {
                 DateTime start = DateTime(now.year, now.month, now.day, Random().nextInt(24), Random().nextInt(60));
                 events.add(FlutterWeekViewEvent(
-                  title: 'Event ' + (events.length + 1).toString(),
+                  title: 'Event ',
+                  description: 'A description.',
                   start: start,
                   end: start.add(const Duration(hours: 1)),
-                  description: 'A description.',
                 ));
               });
             },

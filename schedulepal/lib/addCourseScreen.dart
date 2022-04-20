@@ -141,6 +141,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                                             ),
                                             child: const Icon(Icons.add, size: 20),
                                             onPressed: () {
+
                                               // ************************************
                                               // UPDATE FIREBASE DB OF USER'S COURSES
                                               // ************************************
