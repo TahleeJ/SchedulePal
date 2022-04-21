@@ -1,6 +1,8 @@
-import 'dart:math';
+import 'dart:developer';
+import 'package:intl/intl.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
@@ -9,7 +11,6 @@ import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 
-DateTime get _now => DateTime.now();
 /// Stateful class controlling the sign in page
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -20,7 +21,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
-  List<FlutterWeekViewEvent> events = [];
+  final FirebaseFirestore store = FirebaseFirestore.instance;
+
+  late Map<String, DateTime> weekDaysToDateTime = getDates();
+  late List<DateTime> dates = weekDaysToDateTime.values.toList();
+  late Future<List<FlutterWeekViewEvent>> events = getEvents(weekDaysToDateTime);
+
   /// Builder for the homepage screen
   @override
   Widget build(BuildContext context) {
@@ -36,32 +42,22 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
           IconButton(onPressed: () => {}, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
-
             tooltip: "Sign Out",),
-          IconButton(
-            onPressed: () {
-              setState(() {
-                DateTime start = DateTime(now.year, now.month, now.day, Random().nextInt(24), Random().nextInt(60));
-                events.add(FlutterWeekViewEvent(
-                  title: 'Event ',
-                  description: 'A description.',
-                  start: start,
-                  end: start.add(const Duration(hours: 1)),
-                ));
-              });
-            },
-            icon: const Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-          ),
-
         ],
       ),
-      body: WeekView(
-          initialTime: const HourMinute(hour: 7).atDate(DateTime.now()),
-          dates: [date.subtract(const Duration(days: 1)), date, date.add(const Duration(days: 1))],
-          events: events
+      body: FutureBuilder<List<FlutterWeekViewEvent>>(
+        future: events,
+        builder: (context, snapshot) {
+          return WeekView(
+              initialTime: const HourMinute(hour: 7).atDate(DateTime.now()), //DateTime.now().subtract(const Duration(hours: 1)),
+              dates: dates,
+              events: snapshot.data,
+              style: WeekViewStyle(dayViewWidth: 250),
+              dayViewStyleBuilder: (DateTime date) {
+                return DayViewStyle(hourRowHeight: 110);
+              },
+          );
+        }
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAlertDialog(context),
@@ -71,6 +67,65 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
     );
+  }
+  /// Get range of DateTimes from SUN -> SAT
+  Map<String, DateTime> getDates() {
+    List<String> weekDays = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
+    List<DateTime> dates = [];
+
+    DateTime today = DateTime.now();
+    DateTime startDate = today.subtract(Duration(days: today.weekday));
+    DateTime endDate = today.add(Duration(days: DateTime.daysPerWeek - today.weekday - 1));
+    for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
+      dates.add(startDate.add(Duration(days: i)));
+    }
+
+    Map<String, DateTime> weekDayToDateTime = new Map();
+    for (int i = 0; i < weekDays.length; i++) {
+      weekDayToDateTime[weekDays[i]] = dates[i];
+    }
+
+    return weekDayToDateTime;
+  }
+
+  /// Convert User courses to Calender Event Objects
+  Future<List<FlutterWeekViewEvent>> getEvents(weekDayToDateTime) async {
+    List<FlutterWeekViewEvent> events = [];
+    var userId = auth.currentUser!.uid;
+    var userRef = store.collection("User").doc(userId);
+    List<dynamic> courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
+
+    for (Map<String, dynamic> course in courseList) {
+
+      // Parse class time (9:00 am - 2:00 pm) -> [09:00, 14:00]
+      List<String> times = course['time'].split(' - ');
+      for (int i = 0; i < times.length; i++) {
+        if (times[i].length == 7) {
+          times[i] = '0' + times[i];
+        }
+        times[i] = times[i].toUpperCase();
+      }
+      DateTime startTime = DateFormat("hh:mm a").parse(times[0]);
+      DateTime endTime = DateFormat("hh:mm a").parse(times[1]);
+
+      // Parse class days (MWF -> MM/DD/YYYY)
+      for (String day in course['days'].split('')) {
+        DateTime date = weekDayToDateTime[day];
+        DateTime start = new DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute);
+        DateTime end = new DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute);
+
+        // Build Calendar Event Object
+        events.add(FlutterWeekViewEvent(
+          title: course['number'],
+          description: course['title'] + '\n' + course['location'],
+          start: start,
+          end: end,
+          )
+        );
+      }
+
+    }
+    return events;
   }
 
   showAlertDialog(BuildContext context) {
@@ -104,6 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+///------------------------------------Navigation-------------------------------
 
   /// Signs out the currently signed in user and navigates to the sign in screen
   Future<void> _signOut() async {
