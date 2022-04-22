@@ -28,11 +28,18 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<DateTime> dates = weekDaysToDateTime.values.toList();
   late Future<List<FlutterWeekViewEvent>> events = getEvents(weekDaysToDateTime);
 
-  double calendarZoom = 110;
+  double dayZoom = 110;
+  double weekZoom = 250;
   void changeZoom() {
     setState(() {
-      if (calendarZoom == 110) calendarZoom = 60;
-      else if (calendarZoom == 50) calendarZoom = 110;
+      if (dayZoom == 110) {
+        dayZoom = 50;
+        weekZoom = 100;
+      }
+      else if (dayZoom == 60) {
+        dayZoom = 110;
+        weekZoom = 250;
+      }
     });
   }
 
@@ -61,9 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
               initialTime: const HourMinute(hour: 7).atDate(DateTime.now()), //DateTime.now().subtract(const Duration(hours: 1)),
               dates: dates,
               events: snapshot.data,
-              style: WeekViewStyle(dayViewWidth: 250),
+              style: WeekViewStyle(dayViewWidth: weekZoom),
               dayViewStyleBuilder: (DateTime date) {
-                return DayViewStyle(hourRowHeight: calendarZoom);
+                return DayViewStyle(hourRowHeight: dayZoom);
               },
           );
         }
