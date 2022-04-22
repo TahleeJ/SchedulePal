@@ -129,6 +129,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
 
   Widget _buildUser(String uid, String name) {
     bool _isRemoved = false;
+    IconData _friendButton = Icons.add_circle_outline;
 
     if (!_isRemoved) {
       return Column(
@@ -164,9 +165,10 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                             _setState(() {
                               _isRemoved = true;
                               _handleAddFriend(uid);
+                              _friendButton = Icons.check_circle_outline;
                             });
                           },
-                          child: Icon(Icons.add_circle_outline, size: 30, color: Colors.black45)
+                          child: Icon(_friendButton, size: 30, color: Colors.black45)
                         )
                     ],
                   )
