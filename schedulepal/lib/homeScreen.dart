@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,6 +28,14 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<DateTime> dates = weekDaysToDateTime.values.toList();
   late Future<List<FlutterWeekViewEvent>> events = getEvents(weekDaysToDateTime);
 
+  double calendarZoom = 110;
+  void changeZoom() {
+    setState(() {
+      if (calendarZoom == 110) calendarZoom = 60;
+      else if (calendarZoom == 50) calendarZoom = 110;
+    });
+  }
+
   /// Builder for the homepage screen
   @override
   Widget build(BuildContext context) {
@@ -40,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: <Widget>[
           // Sign out button
           IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
-          IconButton(onPressed: () => {}, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
+          IconButton(onPressed: changeZoom, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
             tooltip: "Sign Out",),
         ],
@@ -54,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
               events: snapshot.data,
               style: WeekViewStyle(dayViewWidth: 250),
               dayViewStyleBuilder: (DateTime date) {
-                return DayViewStyle(hourRowHeight: 110);
+                return DayViewStyle(hourRowHeight: calendarZoom);
               },
           );
         }
