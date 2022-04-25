@@ -151,12 +151,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     // {longitude: task location's longitude}
     List<Map<String, dynamic>> friendsList = [];
 
-    print("hello");
-
     if (userSnapshot.exists) {
       friends = userSnapshot.data()!["friends"];
       friends.forEach((key, mapValue) async {
-        print(mapValue);
+        print(key);
         if (mapValue == 0) {
           friendsList.add(Map.fromIterables(["uid", "name"], [key, (await userCollection.doc(key).get()).data()?["name"]]));
         }

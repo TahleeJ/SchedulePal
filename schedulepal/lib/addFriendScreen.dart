@@ -42,11 +42,18 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
           backgroundColor: Colors.pink[300],
           centerTitle: true,
           title: const Text("Schedule Pal"),
-          leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back)),
+          leading: IconButton(onPressed: () => {openFriendsList()},
+              icon: Icon(Icons.arrow_back)),
           actions: <Widget>[
-            IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
-            IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.people_alt_outlined, size: 26.0), tooltip: "Friend List"),
-            IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ), tooltip: "Sign Out")
+            IconButton(onPressed: () => {goHome()},
+                icon: Icon(Icons.home_rounded, size: 26.0),
+                tooltip: "Home"),
+            IconButton(onPressed: () => {openFriendsList()},
+                icon: Icon(Icons.people_alt_outlined, size: 26.0),
+                tooltip: "Friend List"),
+            IconButton(onPressed: () => {_signOut()},
+                icon: Icon(Icons.exit_to_app_outlined, size: 26.0,),
+                tooltip: "Sign Out")
 
           ],
         ),
@@ -54,11 +61,12 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
             width: double.infinity,
             height: double.infinity,
             decoration: const BoxDecoration(
-              color: Colors.white
+                color: Colors.white
             ),
             child: Card(
-              margin: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
-              child:  Column(
+              margin: const EdgeInsets.only(
+                  top: 50, bottom: 50, left: 20, right: 20),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Row(
@@ -66,7 +74,8 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                         SizedBox(width: 15),
                         Text(
                           "Add Friend",
-                          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                       ]
                   ),
@@ -81,45 +90,49 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                          labelText: 'Search (e.g., \'John Smith\')', suffixIcon: Icon(Icons.search)),
+                          labelText: 'Search (e.g., \'John Smith\')',
+                          suffixIcon: Icon(Icons.search)),
                     ),
 
                   ),
                   FutureBuilder(
-                    future: _usersList,
-                    builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.active:
-                        case ConnectionState.waiting:
-                          return CircularProgressIndicator();
-                        case ConnectionState.done:
-                          if (snapshot.hasData) {
-                            return Container(
-                                height: 400,
-                                child: ListView.builder(
-                                    padding: EdgeInsets.all(15.0),
-                                    itemCount: snapshot.data!.length,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      return _buildUser(
-                                          snapshot.data![index]["uid"],
-                                          snapshot.data![index]["name"]
-                                      );
-                                    }
-                                )
-                            );
-                          } else {
+                      future: _usersList,
+                      builder: (context,
+                          AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.active:
+                          case ConnectionState.waiting:
+                            return CircularProgressIndicator();
+                          case ConnectionState.done:
+                            if (snapshot.hasData) {
+                              return Container(
+                                  height: 400,
+                                  child: ListView.builder(
+                                      padding: EdgeInsets.all(15.0),
+                                      itemCount: snapshot.data!.length,
+                                      itemBuilder: (BuildContext context,
+                                          int index) {
+                                        return _buildUser(
+                                            snapshot.data![index]["uid"],
+                                            snapshot.data![index]["name"]
+                                        );
+                                      }
+                                  )
+                              );
+                            } else {
+                              return Text(
+                                  "No Users",
+                                  style: TextStyle(fontSize: 18,
+                                      fontWeight: FontWeight.bold));
+                            }
+
+                          default:
                             return Text(
                                 "No Users",
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
-                          }
-
-                        default:
-                          return Text(
-                              "No Users",
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold));
+                        }
                       }
-
-                    }
                   )
                 ],
               ),
@@ -135,7 +148,8 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchUsers() async {
-    var userRef = store.collection('User').where("name", isGreaterThanOrEqualTo: searchString);
+    var userRef = store.collection('User').where(
+        "name", isGreaterThanOrEqualTo: searchString);
     // var userRef = store.collection('User');
     var userSnapshot = (await userRef.get()).docs;
 
@@ -143,7 +157,8 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
 
     userSnapshot.forEach((snapshot) async {
       print(snapshot.data()["name"]);
-      friendsList.add(Map.fromIterables(["uid", "name"], [snapshot.id, snapshot.data()["name"]]));
+      friendsList.add(Map.fromIterables(
+          ["uid", "name"], [snapshot.id, snapshot.data()["name"]]));
     });
 
     await Future.delayed(Duration(milliseconds: 1000));
@@ -156,48 +171,52 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
     IconData _friendButton = Icons.add_circle_outline;
 
     if (!_isRemoved) {
-    print(name);
+      print(name);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget> [
+        children: <Widget>[
           StatefulBuilder(builder: (context, _setState) =>
               Container(
-                decoration: BoxDecoration(
-                  color: Colors.pinkAccent,
-                  border: Border.all(color: Colors.pinkAccent),
-                  borderRadius: BorderRadius.circular(10.0)
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 10.0, bottom: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(right: 15.0),
-                        child: CircleAvatar(
-                            child: Icon(Icons.person, size: 15, color: Colors.grey),
-                            backgroundColor: Colors.white
-                        )
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 15.0),
-                        child: Text(name, style: TextStyle(fontSize: 20, color: Colors.white))
-                      ),
-                      Spacer(),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            _setState(() {
-                              // _isRemoved = true;
-                              _handleAddFriend(uid);
-                              _friendButton = Icons.check_circle_outline;
-                            });
-                          },
-                          child: Icon(_friendButton, size: 30, color: Colors.black45)
-                        )
-                    ],
+                  decoration: BoxDecoration(
+                      color: Colors.pinkAccent,
+                      border: Border.all(color: Colors.pinkAccent),
+                      borderRadius: BorderRadius.circular(10.0)
+                  ),
+                  child: Padding(
+                      padding: EdgeInsets.only(
+                          right: 20.0, left: 20.0, top: 10.0, bottom: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(right: 15.0),
+                              child: CircleAvatar(
+                                  child: Icon(Icons.person, size: 15,
+                                      color: Colors.grey),
+                                  backgroundColor: Colors.white
+                              )
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(right: 15.0),
+                              child: Text(name, style: TextStyle(
+                                  fontSize: 20, color: Colors.white))
+                          ),
+                          Spacer(),
+                          GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                _setState(() {
+                                  // _isRemoved = true;
+                                  _handleAddFriend(uid);
+                                  _friendButton = Icons.check_circle_outline;
+                                });
+                              },
+                              child: Icon(_friendButton, size: 30,
+                                  color: Colors.black45)
+                          )
+                        ],
+                      )
                   )
-                )
               )
           ),
           const Divider(
@@ -209,15 +228,16 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
           )
         ],
       );
+    }
   }
-
   Future<void> _handleAddFriend(String uid) async {
     inspect("add friend");
     inspect(uid);
     var userId = auth.currentUser!.uid;
 
     var userRef = store.collection("User").doc(uid);
-    Map<String, dynamic> friendsList = (await userRef.get()).data()!["friends"];
+    Map<String, dynamic> friendsList = (await userRef.get())
+        .data()!["friends"];
     friendsList.addAll(Map.fromIterables([userId], [1]));
     await userRef.update({"friends": friendsList});
 
@@ -237,7 +257,8 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
 
   void openFriendsList() {
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => FriendsListScreen()));
+        context,
+        MaterialPageRoute(builder: (context) => FriendsListScreen()));
   }
 
   /// Navigates to the sign in screen
