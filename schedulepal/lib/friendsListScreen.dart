@@ -154,7 +154,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     if (userSnapshot.exists) {
       friends = userSnapshot.data()!["friends"];
       friends.forEach((key, mapValue) async {
-        print(key);
         if (mapValue == 0) {
           friendsList.add(Map.fromIterables(["uid", "name"], [key, (await userCollection.doc(key).get()).data()?["name"]]));
         }
