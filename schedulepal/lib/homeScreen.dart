@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Schedule Pal"),
         actions: <Widget>[
           // Sign out button
-          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
+          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.people_alt_outlined, size: 26.0), tooltip: "Friend List"),
           IconButton(onPressed: () => {}, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
 

@@ -45,7 +45,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
         leading: IconButton(onPressed: () =>{goHome()}, icon: Icon(Icons.arrow_back),),
         actions: <Widget>[
           IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
-          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friends List"),
+          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.people_alt_outlined, size: 26.0), tooltip: "Friends List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0), tooltip: "Sign Out")
 
         ],

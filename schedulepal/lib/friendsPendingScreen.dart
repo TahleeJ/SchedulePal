@@ -1,8 +1,5 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'friendsListScreen.dart';
@@ -17,6 +14,9 @@ class FriendsPendingScreen extends StatefulWidget {
   _FriendsPendingScreenState createState() => _FriendsPendingScreenState();
 }
 
+Future<List<Map<String, dynamic>>>? _incomingList = null;
+Future<List<Map<String, dynamic>>>? _outgoingList = null;
+
 class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
   // Project's Firebase authentication instance
   final FirebaseFirestore store = FirebaseFirestore.instance;
@@ -24,6 +24,13 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _incomingList = _getRequests(1);
+    _outgoingList = _getRequests(2);
+  }
 
   /// Builder for the homepage screen
   @override
@@ -37,7 +44,7 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
           leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back),),
           actions: <Widget>[
             IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
-            IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friends List"),
+            IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.people_alt_outlined, size: 26.0), tooltip: "Friends List"),
             IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0),
               tooltip: "Sign Out",)
 
@@ -72,24 +79,38 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                       ]
                   ),
                   FutureBuilder(
-                    future: _getRequests(1),
+                    future: _incomingList,
                     builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                      if (snapshot.hasData) {
-                        return Container(
-                          height: 175,
-                          child: ListView.builder(
-                            padding: EdgeInsets.all(10.0),
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return _buildIncomingRequest(
-                                  snapshot.data![index]["uid"],
-                                  snapshot.data![index]["name"]
-                              );
-                            }
-                          )
-                        );
-                      } else {
-                        return const CircularProgressIndicator();
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.active:
+                        case ConnectionState.waiting:
+                          return const CircularProgressIndicator();
+                        case ConnectionState.done:
+                          if (snapshot.hasData) {
+                            return Container(
+                                height: 175,
+                                child: ListView.builder(
+                                    padding: EdgeInsets.all(10.0),
+                                    itemCount: snapshot.data!.length,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      return _buildIncomingRequest(
+                                          snapshot.data![index]["uid"],
+                                          snapshot.data![index]["name"]
+                                      );
+                                    }
+                                )
+                            );
+                          } else {
+                            return Text(
+                              "No Requests",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            );
+                          }
+                        default:
+                          return Text(
+                            "No Requests",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          );
                       }
                     }
                   ),
@@ -103,33 +124,40 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                       ]
                   ),
                   FutureBuilder(
-                    future: _getRequests(2),
-                    builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.hasData) {
-                          inspect("has data check");
-                          inspect(snapshot.data!.length);
-                          return Container(
-                              height: 175,
-                              child: ListView.builder(
-                                  padding: EdgeInsets.all(10.0),
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    inspect("outgoing builder reached");
-                                    return _buildOutgoingRequest(
-                                        snapshot.data![index]["uid"],
-                                        snapshot.data![index]["name"]
-                                    );
-                                  }
-                              )
-                          );
-                        } else {
-                          return const Text("No requests!");
+                      future: _outgoingList,
+                      builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.active:
+                          case ConnectionState.waiting:
+                            return const CircularProgressIndicator();
+                          case ConnectionState.done:
+                            if (snapshot.hasData) {
+                              return Container(
+                                  height: 175,
+                                  child: ListView.builder(
+                                      padding: EdgeInsets.all(10.0),
+                                      itemCount: snapshot.data!.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        return _buildOutgoingRequest(
+                                            snapshot.data![index]["uid"],
+                                            snapshot.data![index]["name"]
+                                        );
+                                      }
+                                  )
+                              );
+                            } else {
+                              return Text(
+                                "No Requests",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              );
+                            }
+                          default:
+                            return Text(
+                              "No Requests",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            );
                         }
-                      } else {
-                        return const CircularProgressIndicator();
                       }
-                    }
                   )
                 ]
               )
@@ -156,15 +184,15 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
 
     if (userSnapshot.exists) {
       friends = userSnapshot.data()!["friends"];
-      // inspect(friends);
       friends.forEach((key, mapValue) async {
-        // inspect(mapValue);
+        print(mapValue);
         if (mapValue == type) {
           var userDoc = await userCollection.doc(key).get();
           requestList.add(Map.fromIterables(["uid", "name"], [key, userDoc.data()!["name"]]));
         }
       });
     }
+    await Future.delayed(Duration(milliseconds: 2000));
 
     return requestList;
   }
@@ -172,7 +200,6 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
   Widget _buildIncomingRequest(String uid, String name) {
     bool _isRemoved = false;
 
-    if (!_isRemoved) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget> [
@@ -208,7 +235,7 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                                   _handleAcceptIncoming(uid);
                                 });
                               },
-                              child: Icon(Icons.check_circle_outline_rounded, size: 30, color: Colors.black45)
+                              child: Icon(!_isRemoved ? Icons.check_circle_outline_rounded : null, size: 30, color: Colors.black45)
                           ),
                           GestureDetector(
                               onTap: () {
@@ -217,7 +244,7 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                                   _handleRemoveFriend(uid);
                                 });
                               },
-                              child: Icon(Icons.highlight_remove_rounded, size: 30, color: Colors.black45)
+                              child: Icon(!_isRemoved ? Icons.highlight_remove_rounded : null, size: 30, color: Colors.black45)
                           )
                         ],
                       )
@@ -233,13 +260,11 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
           )
         ],
       );
-    }
   }
 
   Widget _buildOutgoingRequest(String uid, String name) {
     bool _isRemoved = false;
 
-    if (!_isRemoved) {
       // inspect("reached");
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -277,7 +302,7 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                                   _handleRemoveFriend(uid);
                                 });
                               },
-                              child: Icon(Icons.highlight_remove_rounded, size: 30, color: Colors.black45)
+                              child: Icon(!_isRemoved ? Icons.highlight_remove_rounded : null, size: 30, color: Colors.black45)
                           )
                         ],
                       )
@@ -293,7 +318,6 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
           )
         ],
       );
-    }
   }
 
   Future<void> _handleRemoveFriend(String uid) async {
@@ -310,6 +334,9 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
     friendsList = (await userRef.get()).data()!["friends"];
     friendsList.remove(uid);
     await userRef.update({"friends": friendsList});
+
+    _incomingList = _getRequests(1);
+    _outgoingList = _getRequests(2);
   }
 
   Future<void> _handleAcceptIncoming(String uid) async {
@@ -324,6 +351,8 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
     friendsList = (await userRef.get()).data()!["friends"][uid];
     friendsList.addAll(Map.fromIterables(["status"], [0]));
     await userRef.update({"friends": friendsList});
+
+    _incomingList = _getRequests(1);
   }
 
   /// Signs out the currently signed in user and navigates to the sign in screen

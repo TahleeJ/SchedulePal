@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'signInScreen.dart';
@@ -15,11 +16,18 @@ class FriendsListScreen extends StatefulWidget {
   _FriendsListScreenState createState() => _FriendsListScreenState();
 }
 
+Future<List<Map<String, dynamic>>>? _friendsList = null;
+
 class _FriendsListScreenState extends State<FriendsListScreen> {
   // Project's Firebase Build feature instances
   final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+  @override
+  void initState() {
+    super.initState();
+    _friendsList = _getFriendsList();
+  }
   /// Builder for the homepage screen
   @override
   Widget build(BuildContext context) {
@@ -45,7 +53,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         ),
         child: Card(
           margin: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
-          child:  Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               StatefulBuilder(builder: (context, _setState) {
@@ -60,26 +68,39 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                     ]
                 );
               }),
-
               FutureBuilder(
-                  future: _getFriendsList(),
+                  future: _friendsList,
                   builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                    if (snapshot.hasData) {
-                      return Container(
-                        height: 300,
-                        child: ListView.builder(
-                          padding: EdgeInsets.all(10.0),
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return _buildFriend(
-                                snapshot.data![index]["uid"],
-                                snapshot.data![index]["name"]
-                            );
-                          }
-                      )
-                      );
-                    } else {
-                      return const CircularProgressIndicator();
+                  switch (snapshot.connectionState) {
+                      case ConnectionState.active:
+                      case ConnectionState.waiting:
+                        return const CircularProgressIndicator();
+                      case ConnectionState.done:
+                        if (snapshot.hasData) {
+                          return Container(
+                              height: 300,
+                              child: ListView.builder(
+                                  padding: EdgeInsets.all(10.0),
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return _buildFriend(
+                                        snapshot.data![index]["uid"],
+                                        snapshot.data![index]["name"]
+                                    );
+                                  }
+                              )
+                          );
+                        } else {
+                          return Text(
+                            "No Friends :(",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          );
+                        }
+                      default:
+                        return Text(
+                          "No Friends :(",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        );
                     }
                   }
               )
@@ -130,14 +151,19 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     // {longitude: task location's longitude}
     List<Map<String, dynamic>> friendsList = [];
 
+    print("hello");
+
     if (userSnapshot.exists) {
       friends = userSnapshot.data()!["friends"];
       friends.forEach((key, mapValue) async {
+        print(mapValue);
         if (mapValue == 0) {
           friendsList.add(Map.fromIterables(["uid", "name"], [key, (await userCollection.doc(key).get()).data()?["name"]]));
         }
       });
     }
+    
+    await Future.delayed(Duration(milliseconds: 2000));
 
     return friendsList;
   }
@@ -145,7 +171,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
   Widget _buildFriend(String uid, String name) {
     bool _isRemoved = false;
 
-    if (!_isRemoved) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget> [
@@ -188,7 +213,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                                   _handleRemoveFriend(uid);
                                 });
                               },
-                              child: Icon(Icons.highlight_remove_rounded, size: 30, color: Colors.black45)
+                              child: Icon(!_isRemoved ? Icons.highlight_remove_rounded : null, size: 30, color: Colors.black45)
                           )
                         ],
                       )
@@ -202,9 +227,8 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               indent: 20.0,
               endIndent: 20.0
           )
-        ],
+        ]
       );
-    }
   }
 
   Future<void> _handleRemoveFriend(String uid) async {
@@ -219,6 +243,8 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     friendsList = (await userRef.get()).data()!["friends"];
     friendsList.remove(uid);
     await userRef.update({"friends": friendsList});
+
+    _friendsList = _getFriendsList();
   }
 
   /// Signs out the currently signed in user and navigates to the sign in screen
