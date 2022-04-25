@@ -17,12 +17,21 @@ class AddFriendScreen extends StatefulWidget {
   _AddFriendScreenState createState() => _AddFriendScreenState();
 }
 
+Future<List<Map<String, dynamic>>>? _usersList = null;
+
 class _AddFriendScreenState extends State<AddFriendScreen> {
   // Project's Firebase Build feature instances
   final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   var searchString = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _usersList = _fetchUsers();
+    print(_usersList);
+  }
 
   /// Builder for the homepage screen
   @override
@@ -36,7 +45,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
           leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back)),
           actions: <Widget>[
             IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0), tooltip: "Home"),
-            IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
+            IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.people_alt_outlined, size: 26.0), tooltip: "Friend List"),
             IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ), tooltip: "Sign Out")
 
           ],
@@ -68,6 +77,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                       onChanged: (value) {
                         setState(() {
                           searchString = value.toLowerCase();
+                          _usersList = _fetchUsers();
                         });
                       },
                       decoration: InputDecoration(
@@ -76,25 +86,39 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
 
                   ),
                   FutureBuilder(
-                    future: _fetchUsers(),
+                    future: _usersList,
                     builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                      if (snapshot.hasData) {
-                        return Container(
-                          height: 200,
-                          child: ListView.builder(
-                            padding: EdgeInsets.all(15.0),
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return _buildUser(
-                                snapshot.data![index]["uid"],
-                                snapshot.data![index]["name"]
-                              );
-                            }
-                          )
-                        );
-                      } else {
-                        return const CircularProgressIndicator();
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.active:
+                        case ConnectionState.waiting:
+                          return CircularProgressIndicator();
+                        case ConnectionState.done:
+                          if (snapshot.hasData) {
+                            return Container(
+                                height: 400,
+                                child: ListView.builder(
+                                    padding: EdgeInsets.all(15.0),
+                                    itemCount: snapshot.data!.length,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      return _buildUser(
+                                          snapshot.data![index]["uid"],
+                                          snapshot.data![index]["name"]
+                                      );
+                                    }
+                                )
+                            );
+                          } else {
+                            return Text(
+                                "No Users",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
+                          }
+
+                        default:
+                          return Text(
+                              "No Users",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
                       }
+
                     }
                   )
                 ],
@@ -111,18 +135,18 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchUsers() async {
-    inspect("hello");
-    inspect(searchString);
-    var userRef = store.collection('User').where("name", isEqualTo: searchString);
+    var userRef = store.collection('User').where("name", isGreaterThanOrEqualTo: searchString);
     // var userRef = store.collection('User');
     var userSnapshot = (await userRef.get()).docs;
 
     List<Map<String, dynamic>> friendsList = [];
 
     userSnapshot.forEach((snapshot) async {
-      inspect(snapshot.data()["name"]);
+      print(snapshot.data()["name"]);
       friendsList.add(Map.fromIterables(["uid", "name"], [snapshot.id, snapshot.data()["name"]]));
     });
+
+    await Future.delayed(Duration(milliseconds: 1000));
 
     return friendsList;
   }
@@ -132,6 +156,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
     IconData _friendButton = Icons.add_circle_outline;
 
     if (!_isRemoved) {
+    print(name);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget> [
@@ -163,7 +188,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                         behavior: HitTestBehavior.opaque,
                           onTap: () {
                             _setState(() {
-                              _isRemoved = true;
+                              // _isRemoved = true;
                               _handleAddFriend(uid);
                               _friendButton = Icons.check_circle_outline;
                             });
@@ -184,7 +209,6 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
           )
         ],
       );
-    }
   }
 
   Future<void> _handleAddFriend(String uid) async {
