@@ -27,6 +27,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+
   flutter:
     sdk: flutter
 
@@ -35,8 +36,9 @@ dependencies:
   google_sign_in: ^5.2.3
   cloud_firestore: ^3.1.6
   time_planner: ^0.0.4
-  flutter_week_view: ^1.2.1+1
 
+  flutter_week_view:
+    path: packages/FlutterWeekView-master
   http: any
 
   # The following adds the Cupertino Icons font to your application.
