@@ -10,6 +10,7 @@ import 'signInScreen.dart';
 import 'addCourseScreen.dart';
 import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
+import 'eventsListScreen.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 
 /// Stateful class controlling the sign in page
@@ -28,18 +29,21 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<DateTime> dates = weekDaysToDateTime.values.toList();
   late Future<List<FlutterWeekViewEvent>> events = getEvents(weekDaysToDateTime);
 
+  bool zoomDay = true;
   double dayZoom = 110;
   double weekZoom = 250;
   void changeZoom() {
     setState(() {
       if (dayZoom == 110) {
-        dayZoom = 50;
+        dayZoom = 60;
         weekZoom = 100;
       }
       else if (dayZoom == 60) {
         dayZoom = 110;
         weekZoom = 250;
       }
+
+      zoomDay = !zoomDay;
     });
   }
 
@@ -55,8 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Schedule Pal"),
         actions: <Widget>[
           // Sign out button
-          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
-          IconButton(onPressed: changeZoom, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
+          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.people_alt_outlined, size: 26.0), tooltip: "Friend List"),
+          IconButton(onPressed: () => {openEventsList()}, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
             tooltip: "Sign Out",),
         ],
@@ -75,13 +79,32 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showAlertDialog(context),
-        //onPressed: () => _addObject(context),
-        tooltip: 'Add random task',
-        child: Icon(Icons.add),
-      ),
-
+      floatingActionButton: Stack(
+        children: [
+          Positioned(
+            right: 25,
+            bottom: 25,
+            child: FloatingActionButton(
+              onPressed: () => showAlertDialog(context),
+              //onPressed: () => _addObject(context),
+              tooltip: 'Add Event',
+              child: Icon(Icons.add),
+              heroTag: 'Add'
+            )
+          ),
+          Positioned(
+            left: 75,
+            bottom: 25,
+            child: FloatingActionButton(
+              onPressed: () => changeZoom(),
+              //onPressed: () => _addObject(context),
+              tooltip: zoomDay ? 'Week View' : 'Day View',
+              child: Icon(zoomDay ? Icons.zoom_out_rounded : Icons.zoom_in_rounded),
+              heroTag: 'Zoom'
+            )
+          )
+        ]
+      )
     );
   }
   /// Get range of DateTimes from SUN -> SAT
@@ -205,5 +228,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void openFriendsList() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => FriendsListScreen()));
+  }
+
+  void openEventsList() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => EventsListScreen()));
   }
 }
