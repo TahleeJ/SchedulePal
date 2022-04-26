@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'friendsListScreen.dart';
 import 'signInScreen.dart';
 import 'homeScreen.dart';
+import 'package:intl/intl.dart';
 
 /// Stateful class controlling the sign in page
 class EventsListScreen extends StatefulWidget {
@@ -17,12 +18,21 @@ class EventsListScreen extends StatefulWidget {
 // Future<List<Map<String, dynamic>>>? _customEventsList = null;
 // Future<List<Map<String, dynamic>>>? _coursesList = null;
 // Future<Map<DateTimeRange, dynamic>>? _customEventsMap = null;
-Future<Map<String, List<dynamic>>>? _eventsList = null;
+Future<Map<String, List<Map<String, dynamic>>>?> _eventsListFuture = {} as Future<Map<String, List<Map<String, dynamic>>>?>;
 
 class _EventsListScreenState extends State<EventsListScreen> {
   // Project's Firebase Build feature instances
   final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
+  Map<String, List<Map<String, dynamic>>>? _eventsList = {};
+
+  List<Color> cardColors = [Colors.blue, Colors.green, Colors.orange, Colors.red, Colors.deepPurpleAccent];
+
+  @override
+  void initState() {
+    super.initState();
+    _eventsListFuture = _fetchCustomEvents();
+  }
 
   /// Builder for the homepage screen
   @override
@@ -70,6 +80,55 @@ class _EventsListScreenState extends State<EventsListScreen> {
                         ),
                       ]
                   ),
+                  FutureBuilder(
+                      future: _eventsListFuture,
+                      builder: (context, AsyncSnapshot<Map<String, List<Map<String, dynamic>>>?> snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.active:
+                          case ConnectionState.waiting:
+                            return const CircularProgressIndicator();
+                          case ConnectionState.done:
+                            if (snapshot.hasData) {
+                              Map<String, List<Map<String, dynamic>>?> eventsMap = Map.from(snapshot.data as Map<String, List<Map<String, dynamic>>?>);
+                              var eventDates = eventsMap.keys.toList();
+
+                              return Container(
+                                height: MediaQuery.of(context).size.height - 200,
+                                child: ListView.builder(
+                                  padding: EdgeInsets.all(10.0),
+                                  itemCount: eventsMap.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Text(eventDates[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                                        ListView.builder(
+                                          shrinkWrap: true,
+                                          physics: ClampingScrollPhysics(),
+                                          itemCount: eventsMap[eventDates[index]]!.length,
+                                          itemBuilder: (BuildContext eventContext, int eventIndex) {
+                                            return _buildEvent(eventsMap[eventDates[index]]![eventIndex], cardColors[index % cardColors.length]);
+                                          }
+                                        )
+                                      ],
+                                    );
+                                  }
+                                ),
+                              );
+                            } else {
+                              return Text(
+                                  'No events',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                              );
+                            }
+                          default:
+                            return Text(
+                              'No events',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                            );
+                        }
+                      }
+                  )
                 ],
               ),
             )
@@ -77,63 +136,110 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-  // Future<List<Map<String, dynamic>>> _fetchCourses() async {
-  //   var userRef = store.collection('User').doc(auth.currentUser?.uid);
-  //   var userSnapshot = await userRef.get();
-  //   var userCollection = store.collection("User");
-  //
-  //   Map<String, dynamic> friends;
-  //
-  //   // List to structurally hold all of a user's tasks in maps:
-  //   // {name: task's name},
-  //   // {latitude: task location's latitude},
-  //   // {longitude: task location's longitude}
-  //   List<Map<String, dynamic>> friendsList = [];
-  //
-  //   if (userSnapshot.exists) {
-  //     friends = userSnapshot.data()!["friends"];
-  //     friends.forEach((key, mapValue) async {
-  //       if (mapValue == 0) {
-  //         friendsList.add(Map.fromIterables(["uid", "name"], [key, (await userCollection.doc(key).get()).data()?["name"]]));
-  //       }
-  //     });
-  //   }
-  //
-  //   await Future.delayed(Duration(milliseconds: 2000));
-  // }
+  Widget _buildEvent(Map<String, dynamic> eventData, Color cardColor) {
+    bool _isRemoved = false;
 
-  // Future<List<Map<String, dynamic>>> _fetchCustomEvents() async {
-  //   var userRef = store.collection('User').doc(auth.currentUser?.uid);
-  //   var userSnapshot = await userRef.get();
-  //   var userCollection = store.collection("User");
-  //
-  //   // Map<String, dynamic> friends;
-  //   //
-  //   // // List to structurally hold all of a user's tasks in maps:
-  //   // // {name: task's name},
-  //   // // {latitude: task location's latitude},
-  //   // // {longitude: task location's longitude}
-  //   // List<Map<String, dynamic>> friendsList = [];
-  //   //
-  //   // if (userSnapshot.exists) {
-  //   //   friends = userSnapshot.data()!["friends"];
-  //   //   friends.forEach((key, mapValue) async {
-  //   //     if (mapValue == 0) {
-  //   //       friendsList.add(Map.fromIterables(["uid", "name"], [key, (await userCollection.doc(key).get()).data()?["name"]]));
-  //   //     }
-  //   //   });
-  //   // }
-  //
-  //   if (userSnapshot.exists) {
-  //     List<String> customEvents = userSnapshot.data()!["events"];
-  //
-  //     customEvents.forEach((element) {
-  //
-  //     })
-  //   }
-  //
-  //   await Future.delayed(Duration(milliseconds: 2000));
-  // }
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget> [
+          StatefulBuilder(builder: (context, _setState) =>
+              Container(
+                  decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: cardColor),
+                      borderRadius: BorderRadius.circular(10.0)
+                  ),
+                  child: Padding(
+                      padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 10.0, bottom: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(right: 15.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                                  Text('${eventData['startTime']}-${eventData['endTime']}', style: TextStyle(fontSize: 12, color: Colors.white)),
+                                  Text(eventData['location'], style: TextStyle(fontSize: 12, color: Colors.white))
+                                ],
+                              )
+                          ),
+                          Spacer(),
+                          Column(
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  _setState(() {});
+                                },
+                                child: Icon(Icons.highlight_remove_rounded)
+                              ),
+                              GestureDetector(
+                                  onTap: () {
+                                    _setState(() {});
+                                  },
+                                  child: Icon(Icons.create_rounded)
+                              ),
+                              GestureDetector(
+                                  onTap: () {
+                                    _setState(() {});
+                                  },
+                                  child: Icon(Icons.people_alt_outlined)
+                              )
+                            ],
+                          )
+                        ],
+                      )
+                  )
+              )
+          ),
+          const Divider(
+              height: 10.0,
+              thickness: 1.0,
+              color: Colors.white,
+              indent: 20.0,
+              endIndent: 20.0
+          )
+        ]
+    );
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>?> _fetchCustomEvents() async {
+    // var userRef = store.collection('User').doc(auth.currentUser?.uid);
+    var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+    var userSnapshot = await userRef.get();
+    var eventCollection = store.collection("Events");
+
+    if (userSnapshot.exists) {
+      List<dynamic> customEvents = userSnapshot.data()!["events"];
+
+      await Future.forEach(customEvents, (element) async {
+        var event = (await eventCollection.doc(element.toString()).get()).data();
+        Map<String, dynamic> eventData = {};
+        final date = DateFormat('MM/dd/yyyy').format(event?['date'].toDate());
+
+        eventData['id'] = element.toString();
+        eventData['date'] = date;
+        eventData['startTime'] = DateFormat('hh:mm a').format(event?['startTime'].toDate());
+        eventData['endTime'] = DateFormat('hh:mm a').format(event?['endTime'].toDate());
+        eventData['title'] = event?['name'];
+        eventData['description'] = event?['description'];
+        eventData['location'] = event?['location'];
+
+        if (_eventsList!.containsKey(date)) {
+          _eventsList![date]!.add(eventData);
+        } else {
+          _eventsList![date] = [eventData];
+        }
+      });
+    }
+
+    await Future.delayed(Duration(milliseconds: 2000));
+
+    return _eventsList;
+  }
+
+
 
   /// Navigates back to the home screen
   void goHome() {
