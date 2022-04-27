@@ -18,11 +18,6 @@ class SharedEventScreen extends StatefulWidget {
   _SharedEventScreenState createState() => _SharedEventScreenState();
 }
 
-// Future<List<Map<String, dynamic>>>? _customSharedEvent = null;
-// Future<List<Map<String, dynamic>>>? _coursesList = null;
-// Future<Map<DateTimeRange, dynamic>>? _customEventsMap = null;
-
-Future<bool> _eventLoaded = false as Future<bool>;
 Future<List<Map<String, dynamic>>>? _friendsList = null;
 
 class _SharedEventScreenState extends State<SharedEventScreen> {
@@ -30,14 +25,7 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
   final FirebaseFirestore store = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  var _eventData;
-
-  var _title;
-  var _description;
-  var _location;
-  var _date;
-  var _startTime;
-  var _endTime;
+  Map<String, String> _eventData = {};
 
   @override
   void initState() {
@@ -77,11 +65,12 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
             ),
             child: Card(
               margin: const EdgeInsets.only(
-                  top: 50, bottom: 50, left: 20, right: 20),
+                  top: 25, bottom: 50, left: 20, right: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(width: 15),
                         Text(
@@ -100,42 +89,77 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
                           case ConnectionState.waiting:
                             return const CircularProgressIndicator();
                           case ConnectionState.done:
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        '${_title}\n${_date}\n${_startTime}-${_endTime}\n${_location}\n${_description}',
-                                          style: TextStyle(fontSize: 20)
-                                      ),
-                                      Divider(),
-                                      Text(
-                                        'Shared Friends',
-                                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)
-                                      ),
-                                      Container(
-                                          height: 300,
-                                          child: ListView.builder(
-                                              padding: EdgeInsets.all(10.0),
-                                              itemCount: snapshot.data!.length,
-                                              itemBuilder: (BuildContext context, int index) {
-                                                return _buildFriend(
-                                                    snapshot.data![index]["uid"]!,
-                                                    snapshot.data![index]["name"]!
-                                                );
-                                              }
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 10),
+                                          child: Text(_eventData['title']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.calendar_today_rounded),
+                                              Text(_eventData['date']!, style: TextStyle(fontSize: 20))
+                                            ],
                                           )
-                                      )
-                                  ]
-                                ),
-                              ],
-                            );
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.access_time_rounded),
+                                              Text('${_eventData['startTime']!} - ${_eventData['endTime']!}',
+                                                  style: TextStyle(fontSize: 20))
+                                            ],
+                                          )
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.my_location_rounded),
+                                              Text(_eventData['location']!, style: TextStyle(fontSize: 20))
+                                            ],
+                                          )
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          child: Text(_eventData['description']!, style: TextStyle(fontSize: 20), maxLines: 3)
+                                        ),
+                                        Divider(),
+                                        Text(
+                                            'Shared Friends',
+                                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)
+                                        ),
+                                        (snapshot.hasData) ? Container(
+                                            height: 300,
+                                            child: ListView.builder(
+                                                padding: EdgeInsets.all(10.0),
+                                                itemCount: snapshot.data!.length,
+                                                itemBuilder: (BuildContext context, int index) {
+                                                  return _buildFriend(
+                                                      snapshot.data![index]["uid"]!,
+                                                      snapshot.data![index]["name"]!
+                                                  );
+                                                }
+                                            )
+                                        ) : Text(
+                                            'No friends share this event!',
+                                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                          )
+                                      ]
+                                  ),
+                                ],
+                              );
                           default:
                             return Text(
-                              "This event could not be found!",
+                              'No friends share this event!',
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             );
                         }
@@ -149,8 +173,6 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
   }
 
   Widget _buildFriend(String uid, String name) {
-    bool _isRemoved = false;
-
     return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget> [
@@ -206,44 +228,32 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
     var eventRef = store.collection('Events').doc(widget.eventId);
     var eventData = (await eventRef.get()).data();
 
-    _title = eventData?['name'];
-    _description = eventData?['description'];
-    _location = eventData?['location'];
-    _date = DateFormat('MM/dd/yyyy').format(eventData?['date'].toDate());
-    _startTime = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
-    _endTime = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
-
-    // _friendsList = await getSharedFriends();
+    _eventData['title'] = eventData?['name'];
+    _eventData['description'] = eventData?['description'];
+    _eventData['location'] = eventData?['location'];
+    _eventData['date'] = DateFormat('MM/dd/yyyy').format(eventData?['date'].toDate());
+    _eventData['startTime'] = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
+    _eventData['endTime'] = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
 
     return getSharedFriends();
   }
 
   Future<List<Map<String, dynamic>>> getSharedFriends() async {
-    print("enter");
     var userCollection = store.collection('User');
     var userSnapshot = await userCollection.doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1').get();
     List<String> friendData;
-
     Map<String, dynamic> friends;
-
-    // List to structurally hold all of a user's tasks in maps:
-    // {name: task's name},
-    // {latitude: task location's latitude},
-    // {longitude: task location's longitude}
     List<Map<String, dynamic>> friendsList = [];
 
     if (userSnapshot.exists) {
-      print("another");
       friends = userSnapshot.data()!["friends"];
-      print(friends);
 
       await Future.forEach(friends.entries, (element) async {
-        // Map<String, dynamic> friendEntry = Map.fromEntries([]);
         MapEntry<String, dynamic> friendEntry = element as MapEntry<String, dynamic>;
+        int friendType = (friendEntry.value as num).toInt();
 
-        if (friendEntry.value == 0) {
-
-          friendData = (await userCollection.doc(friendEntry.key).get()).data()!['events'];
+        if (friendType == 0) {
+          friendData = List<String>.from((await userCollection.doc(friendEntry.key).get()).data()!['events']);
 
           if (friendData.contains(widget.eventId)) {
             friendsList.add(Map.fromIterables(["uid", "name"], [friendEntry.key, (await userCollection.doc(friendEntry.key).get()).data()?["name"]]));
