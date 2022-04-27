@@ -6,6 +6,7 @@ import 'friendsListScreen.dart';
 import 'signInScreen.dart';
 import 'homeScreen.dart';
 import 'package:intl/intl.dart';
+import 'eventEditorScreen.dart';
 
 /// Stateful class controlling the sign in page
 class EventsListScreen extends StatefulWidget {
@@ -43,8 +44,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
           backgroundColor: Colors.pink[300],
           centerTitle: true,
           title: const Text("Schedule Pal"),
-          leading: IconButton(onPressed: () => {openFriendsList()},
-              icon: Icon(Icons.arrow_back)),
           actions: <Widget>[
             IconButton(onPressed: () => {goHome()},
                 icon: Icon(Icons.home_rounded, size: 26.0),
@@ -101,7 +100,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                                     return Column(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        Text(eventDates[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                                        Text(eventDates[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.black)),
                                         ListView.builder(
                                           shrinkWrap: true,
                                           physics: ClampingScrollPhysics(),
@@ -158,10 +157,12 @@ class _EventsListScreenState extends State<EventsListScreen> {
                           Padding(
                               padding: EdgeInsets.only(right: 15.0),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
-                                  Text('${eventData['startTime']}-${eventData['endTime']}', style: TextStyle(fontSize: 12, color: Colors.white)),
-                                  Text(eventData['location'], style: TextStyle(fontSize: 12, color: Colors.white))
+                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.underline, color: Colors.white)),
+                                  Divider(),
+                                  Text('${eventData['startTime']}-${eventData['endTime']}', style: TextStyle(fontSize: 12, decoration:! _isRemoved ? TextDecoration.none : TextDecoration.underline, color: Colors.white)),
+                                  Text(eventData['location'], style: TextStyle(fontSize: 12, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.underline, color: Colors.white))
                                 ],
                               )
                           ),
@@ -170,13 +171,19 @@ class _EventsListScreenState extends State<EventsListScreen> {
                             children: <Widget>[
                               GestureDetector(
                                 onTap: () {
-                                  _setState(() {});
+                                  _setState(() {
+                                    _isRemoved = true;
+
+                                    removeEvent(eventData['id']);
+                                  });
                                 },
                                 child: Icon(Icons.highlight_remove_rounded)
                               ),
                               GestureDetector(
                                   onTap: () {
-                                    _setState(() {});
+                                    _setState(() {
+                                      goEditEvent(eventData['id']);
+                                    });
                                   },
                                   child: Icon(Icons.create_rounded)
                               ),
@@ -239,7 +246,16 @@ class _EventsListScreenState extends State<EventsListScreen> {
     return _eventsList;
   }
 
+  Future<void> removeEvent(String id) async {
+    // var userRef = store.collection('User').doc(auth.currentUser?.uid);
+    var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
 
+    await userRef.update(
+      { 'events': FieldValue.arrayRemove([id]) }
+    );
+
+    _eventsListFuture = _fetchCustomEvents();
+  }
 
   /// Navigates back to the home screen
   void goHome() {
@@ -264,5 +280,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
   void openFriendsList() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => FriendsListScreen()));
+  }
+
+  void goEditEvent(String eventId) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => EventEditorScreen(eventId: eventId)));
   }
 }
