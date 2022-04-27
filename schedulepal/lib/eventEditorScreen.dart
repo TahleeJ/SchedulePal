@@ -160,14 +160,16 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                                       ElevatedButton(
                                           onPressed: () => showDateSelection(context),
                                           child: Text(
-                                              'Edit Date and Time'
+                                              'Edit Date and Time',
+                                            style: TextStyle(fontSize: 18)
                                           ),
                                           style: ElevatedButton.styleFrom(primary: Colors.grey)
                                       ),
                                       ElevatedButton(
                                           onPressed: () => saveEventInfo(),
                                           child: Text(
-                                              'Save'
+                                              'Save',
+                                              style: TextStyle(fontSize: 18)
                                           ),
                                           style: ElevatedButton.styleFrom(primary: Colors.pink[300])
                                       )
@@ -194,12 +196,12 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     var eventRef = store.collection('Events').doc(widget.eventId);
     var eventData = (await eventRef.get()).data();
 
-    _titleController.text = eventData!['name'];
-    _descriptionController.text = eventData!['description'];
-    _locationController.text = eventData!['location'];
-    _date = eventData!['date'].toDate();
-    _startTime = eventData!['startTime'].toDate();
-    _endTime = eventData!['endTime'].toDate();
+    _titleController.text = eventData?['name'];
+    _descriptionController.text = eventData?['description'];
+    _locationController.text = eventData?['location'];
+    _date = eventData?['date'].toDate();
+    _startTime = eventData?['startTime'].toDate();
+    _endTime = eventData?['endTime'].toDate();
 
     return true;
   }

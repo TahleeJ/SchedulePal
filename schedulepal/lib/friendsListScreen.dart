@@ -139,9 +139,8 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _getFriendsList() async {
-    var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    var userSnapshot = await userRef.get();
-    var userCollection = store.collection("User");
+    var userCollection = store.collection('Users');
+    var userSnapshot = await userCollection.doc(auth.currentUser?.uid).get();
 
     Map<String, dynamic> friends;
 

@@ -7,6 +7,7 @@ import 'signInScreen.dart';
 import 'homeScreen.dart';
 import 'package:intl/intl.dart';
 import 'eventEditorScreen.dart';
+import 'sharedEventScreen.dart';
 
 /// Stateful class controlling the sign in page
 class EventsListScreen extends StatefulWidget {
@@ -159,10 +160,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.underline, color: Colors.white)),
+                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white)),
                                   Divider(),
-                                  Text('${eventData['startTime']}-${eventData['endTime']}', style: TextStyle(fontSize: 12, decoration:! _isRemoved ? TextDecoration.none : TextDecoration.underline, color: Colors.white)),
-                                  Text(eventData['location'], style: TextStyle(fontSize: 12, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.underline, color: Colors.white))
+                                  Text('${eventData['startTime']}-${eventData['endTime']}', style: TextStyle(fontSize: 12, decoration:! _isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white)),
+                                  Text(eventData['location'], style: TextStyle(fontSize: 12, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white))
                                 ],
                               )
                           ),
@@ -189,7 +190,9 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               ),
                               GestureDetector(
                                   onTap: () {
-                                    _setState(() {});
+                                    _setState(() {
+                                      goSeeSharedFriend(eventData['id']);
+                                    });
                                   },
                                   child: Icon(Icons.people_alt_outlined)
                               )
@@ -285,5 +288,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
   void goEditEvent(String eventId) {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => EventEditorScreen(eventId: eventId)));
+  }
+
+  void goSeeSharedFriend(String eventId) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SharedEventScreen(eventId: eventId)));
   }
 }
