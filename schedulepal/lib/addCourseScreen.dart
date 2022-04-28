@@ -213,11 +213,15 @@ class CourseWidget extends StatelessWidget {
   }
 
   Future<void> handleAddCourse() async {
-    var userId = auth.currentUser!.uid;
+    // var userId = auth.currentUser!.uid;
+    var userId = 'KsHbpcV4qfQzGJlgkJU1qmVjJ1s1';
     var userRef = store.collection("User").doc(userId);
     List<dynamic> courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
+    List<dynamic> courseCrnList = ((await userRef.get()).data()!["crn_list"] == null) ? [] : (await userRef.get()).data()!["crn_list"];
     courseList.add(course.json);
+    courseCrnList.add(course.crn);
     await userRef.update({"courses": courseList});
+    await userRef.update({"crn_list": courseCrnList});
   }
 }
 

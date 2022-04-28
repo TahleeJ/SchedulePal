@@ -51,23 +51,24 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         decoration: const BoxDecoration(
           color: Colors.white
         ),
-        child: Card(
-          margin: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              StatefulBuilder(builder: (context, _setState) {
-                return Row(
+          child: Card(
+            margin: const EdgeInsets.only(
+                top: 25, bottom: 50, left: 20, right: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(width: 15),
                       Text(
                         "Friends List",
-                        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold),
                       ),
-
+                      Divider()
                     ]
-                );
-              }),
+                ),
               FutureBuilder(
                   future: _friendsList,
                   builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
@@ -76,7 +77,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                       case ConnectionState.waiting:
                         return const CircularProgressIndicator();
                       case ConnectionState.done:
-                        if (snapshot.hasData) {
+                        if (snapshot.hasData && snapshot.data!.length > 0) {
                           return Container(
                               height: 300,
                               child: ListView.builder(
@@ -139,7 +140,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _getFriendsList() async {
-    var userCollection = store.collection('Users');
+    var userCollection = store.collection('User');
     var userSnapshot = await userCollection.doc(auth.currentUser?.uid).get();
 
     Map<String, dynamic> friends;
@@ -152,9 +153,15 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
 
     if (userSnapshot.exists) {
       friends = userSnapshot.data()!["friends"];
-      friends.forEach((key, mapValue) async {
-        if (mapValue == 0) {
-          friendsList.add(Map.fromIterables(["uid", "name"], [key, (await userCollection.doc(key).get()).data()?["name"]]));
+
+      await Future.forEach(friends.entries, (element) async {
+        MapEntry<String, dynamic> friendEntry = element as MapEntry<String, dynamic>;
+        int friendType = (friendEntry.value as num).toInt();
+
+        if (friendType == 0) {
+          var friendData = (await userCollection.doc(friendEntry.key).get()).data();
+
+          friendsList.add(Map.fromIterables(["uid", "name"], [friendEntry.key, friendData?["name"]]));
         }
       });
     }

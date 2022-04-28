@@ -75,11 +75,12 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
             ),
             child: Card(
               margin: const EdgeInsets.only(
-                  top: 50, bottom: 50, left: 20, right: 20),
+                  top: 25, bottom: 50, left: 20, right: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(width: 15),
                         Text(

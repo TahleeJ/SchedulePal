@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'friendsListScreen.dart';
@@ -12,7 +11,8 @@ import 'package:intl/intl.dart';
 /// Stateful class controlling the sign in page
 class SharedEventScreen extends StatefulWidget {
   final String eventId;
-  const SharedEventScreen({Key? key, required this.eventId}) : super(key: key);
+  final bool custom;
+  const SharedEventScreen({Key? key, required this.eventId, required this.custom}) : super(key: key);
 
   @override
   _SharedEventScreenState createState() => _SharedEventScreenState();
@@ -91,6 +91,7 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
                           case ConnectionState.done:
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Column(
                                       mainAxisAlignment: MainAxisAlignment.start,
@@ -98,14 +99,14 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
                                       children: <Widget>[
                                         Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 10),
-                                          child: Text(_eventData['title']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
+                                          child: Text(widget.custom ? _eventData['title']! : _eventData['number']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 5),
                                           child: Row(
                                             children: [
                                               Icon(Icons.calendar_today_rounded),
-                                              Text(_eventData['date']!, style: TextStyle(fontSize: 20))
+                                              Text(widget.custom ? _eventData['date']! : _eventData['days']!, style: TextStyle(fontSize: 20))
                                             ],
                                           )
                                         ),
@@ -130,15 +131,11 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 5),
-                                          child: Text(_eventData['description']!, style: TextStyle(fontSize: 20), maxLines: 3)
+                                          child: Text(widget.custom ? _eventData['description']! : _eventData['title']!, style: TextStyle(fontSize: 20), maxLines: 3)
                                         ),
                                         Divider(),
-                                        Text(
-                                            'Shared Friends',
-                                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)
-                                        ),
-                                        (snapshot.hasData) ? Container(
-                                            height: 300,
+                                        (snapshot.hasData && snapshot.data!.length > 0) ? Container(
+                                            height: MediaQuery.of(context).size.height / 3,
                                             child: ListView.builder(
                                                 padding: EdgeInsets.all(10.0),
                                                 itemCount: snapshot.data!.length,
@@ -225,15 +222,38 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _getEvent() async {
-    var eventRef = store.collection('Events').doc(widget.eventId);
-    var eventData = (await eventRef.get()).data();
+    if (widget.custom) {
+      var eventRef = store.collection('Events').doc(widget.eventId);
+      var eventData = (await eventRef.get()).data();
 
-    _eventData['title'] = eventData?['name'];
-    _eventData['description'] = eventData?['description'];
-    _eventData['location'] = eventData?['location'];
-    _eventData['date'] = DateFormat('MM/dd/yyyy').format(eventData?['date'].toDate());
-    _eventData['startTime'] = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
-    _eventData['endTime'] = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
+      _eventData['title'] = eventData?['name'];
+      _eventData['description'] = eventData?['description'];
+      _eventData['location'] = eventData?['location'];
+      _eventData['date'] = DateFormat('MM/dd/yyyy').format(eventData?['date'].toDate());
+      _eventData['startTime'] = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
+      _eventData['endTime'] = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
+    } else {
+      // var userRef = store.collection('User').doc(auth.currentUser?.uid);
+      var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+      var eventData = ((await userRef.get()).data()!['courses']).firstWhere((element) =>  element['crn'] == widget.eventId);
+
+      List<String> times = eventData?['time'].split(' - ');
+      for (int i = 0; i < times.length; i++) {
+        if (times[i].length == 7) {
+          times[i] = '0' + times[i];
+        }
+        times[i] = times[i].toUpperCase();
+      }
+      String startTime = DateFormat("hh:mm a").format(DateFormat("hh:mm a").parse(times[0]));
+      String endTime = DateFormat("hh:mm a").format(DateFormat("hh:mm a").parse(times[1]));
+
+      _eventData['days'] = eventData?['days'];
+      _eventData['startTime'] = startTime;
+      _eventData['endTime'] = endTime;
+      _eventData['number'] = '${eventData?['number']} Section ${eventData?['section']}';
+      _eventData['title'] = '${eventData?['title']} - ${eventData?['schedule_type']}';
+      _eventData['location'] = eventData?['location'];
+    }
 
     return getSharedFriends();
   }
@@ -241,7 +261,6 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
   Future<List<Map<String, dynamic>>> getSharedFriends() async {
     var userCollection = store.collection('User');
     var userSnapshot = await userCollection.doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1').get();
-    List<String> friendData;
     Map<String, dynamic> friends;
     List<Map<String, dynamic>> friendsList = [];
 
@@ -253,10 +272,11 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
         int friendType = (friendEntry.value as num).toInt();
 
         if (friendType == 0) {
-          friendData = List<String>.from((await userCollection.doc(friendEntry.key).get()).data()!['events']);
+          var friendData = (await userCollection.doc(friendEntry.key).get()).data();
+          List<String> friendEvents = List<String>.from(friendData?[widget.custom ? 'events' : 'crn_list']);
 
-          if (friendData.contains(widget.eventId)) {
-            friendsList.add(Map.fromIterables(["uid", "name"], [friendEntry.key, (await userCollection.doc(friendEntry.key).get()).data()?["name"]]));
+          if (friendEvents.contains(widget.eventId)) {
+            friendsList.add(Map.fromIterables(["uid", "name"], [friendEntry.key, friendData?["name"]]));
           }
         }
       });

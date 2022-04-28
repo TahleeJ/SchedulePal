@@ -57,18 +57,23 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
               color: Colors.white
             ),
             child: Card(
-              margin: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
+              margin: const EdgeInsets.only(
+                  top: 25, bottom: 50, left: 20, right: 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                      children: <Widget>[
-                        Text(
-                          "Manage Requests",
-                          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                        ),
-                      ]
-                  ),
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          SizedBox(width: 15),
+                          Text(
+                            "Manage Requests",
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                          )
+                        ]
+                    ),
+                  Divider(),
                   Row(
                       children: <Widget>[
                         SizedBox(width: 15),
@@ -88,8 +93,9 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                         case ConnectionState.done:
                           if (snapshot.hasData) {
                             return Container(
-                                height: 175,
-                                child: ListView.builder(
+                                height: MediaQuery.of(context).size.height / 3,
+                                child: (snapshot.data!.length > 0) ?
+                                  ListView.builder(
                                     padding: EdgeInsets.all(10.0),
                                     itemCount: snapshot.data!.length,
                                     itemBuilder: (BuildContext context, int index) {
@@ -98,6 +104,9 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                                           snapshot.data![index]["name"]
                                       );
                                     }
+                                ) : Text(
+                                  "No Requests",
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 )
                             );
                           } else {
@@ -131,18 +140,22 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                           case ConnectionState.waiting:
                             return const CircularProgressIndicator();
                           case ConnectionState.done:
-                            if (snapshot.hasData) {
+                            if (snapshot.hasData && snapshot.data!.length > 0) {
                               return Container(
-                                  height: 175,
-                                  child: ListView.builder(
+                                  height: MediaQuery.of(context).size.height / 3,
+                                  child: (snapshot.data!.length > 0) ?
+                                  ListView.builder(
                                       padding: EdgeInsets.all(10.0),
                                       itemCount: snapshot.data!.length,
                                       itemBuilder: (BuildContext context, int index) {
-                                        return _buildOutgoingRequest(
+                                        return _buildIncomingRequest(
                                             snapshot.data![index]["uid"],
                                             snapshot.data![index]["name"]
                                         );
                                       }
+                                  ) : Text(
+                                    "No Requests",
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   )
                               );
                             } else {
@@ -184,14 +197,19 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
 
     if (userSnapshot.exists) {
       friends = userSnapshot.data()!["friends"];
-      friends.forEach((key, mapValue) async {
-        print(mapValue);
-        if (mapValue == type) {
-          var userDoc = await userCollection.doc(key).get();
-          requestList.add(Map.fromIterables(["uid", "name"], [key, userDoc.data()!["name"]]));
+
+      await Future.forEach(friends.entries, (element) async {
+        MapEntry<String, dynamic> friendEntry = element as MapEntry<String, dynamic>;
+        int friendType = (friendEntry.value as num).toInt();
+
+        if (friendType == type) {
+          var friendData = (await userCollection.doc(friendEntry.key).get()).data();
+
+          requestList.add(Map.fromIterables(["uid", "name"], [friendEntry.key, friendData?["name"]]));
         }
       });
     }
+
     await Future.delayed(Duration(milliseconds: 2000));
 
     return requestList;
