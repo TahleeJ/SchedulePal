@@ -2,11 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:really_simple_chat/eventEditorScreen.dart';
+import 'package:really_simple_chat/invitedEventsScreen.dart';
 import 'friendsListScreen.dart';
 import 'signInScreen.dart';
 import 'homeScreen.dart';
 import 'package:intl/intl.dart';
 import 'eventEditorScreen.dart';
+import 'invitedEventsScreen.dart';
 import 'sharedEventScreen.dart';
 
 /// Stateful class controlling the sign in page
@@ -17,9 +20,6 @@ class EventsListScreen extends StatefulWidget {
   _EventsListScreenState createState() => _EventsListScreenState();
 }
 
-// Future<List<Map<String, dynamic>>>? _customEventsList = null;
-// Future<List<Map<String, dynamic>>>? _coursesList = null;
-// Future<Map<DateTimeRange, dynamic>>? _customEventsMap = null;
 Future<Map<String, List<Map<String, dynamic>>>?> _eventsListFuture = {} as Future<Map<String, List<Map<String, dynamic>>>?>;
 
 class _EventsListScreenState extends State<EventsListScreen> {
@@ -49,10 +49,15 @@ class _EventsListScreenState extends State<EventsListScreen> {
           backgroundColor: Colors.pink[300],
           centerTitle: true,
           title: const Text("Schedule Pal"),
+          leading: IconButton(onPressed: () => {goHome()},
+              icon: Icon(Icons.arrow_back)),
           actions: <Widget>[
             IconButton(onPressed: () => {goHome()},
                 icon: Icon(Icons.home_rounded, size: 26.0),
                 tooltip: "Home"),
+            IconButton(onPressed: () =>{openEventInvites()},
+                icon: Icon(Icons.hourglass_bottom_rounded, size: 30),
+                tooltip: "Event Invites"),
             IconButton(onPressed: () => {openFriendsList()},
                 icon: Icon(Icons.people_alt_outlined, size: 26.0),
                 tooltip: "Friends List"),
@@ -456,8 +461,8 @@ class _EventsListScreenState extends State<EventsListScreen> {
 }
 
   Future<Map<String, List<Map<String, dynamic>>>?> _fetchCustomEvents() async {
-    // var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+    var userRef = store.collection('User').doc(auth.currentUser?.uid);
+    // var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
     var userSnapshot = await userRef.get();
     var eventCollection = store.collection("Events");
 
@@ -465,7 +470,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
       List<dynamic> customEvents = userSnapshot.data()!["events"];
 
       await Future.forEach(customEvents, (element) async {
-        var event = (await eventCollection.doc(element.toString()).get()).data();
+        var event = (await eventCollection.doc(element.toString().trim()).get()).data();
         Map<String, dynamic> eventData = {};
         final date = DateFormat('MM/dd/yyyy').format(event?['date'].toDate());
 
@@ -554,6 +559,11 @@ class _EventsListScreenState extends State<EventsListScreen> {
   void goEditEvent(String eventId) {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => EventEditorScreen(eventId: eventId)));
+  }
+
+  void openEventInvites() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => InvitedEventsScreen()));
   }
 
   void goSeeSharedFriend(String eventId, bool custom) {
