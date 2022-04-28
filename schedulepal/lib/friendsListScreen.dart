@@ -7,6 +7,7 @@ import 'signInScreen.dart';
 import 'homeScreen.dart';
 import 'addFriendScreen.dart';
 import 'friendsPendingScreen.dart';
+import 'friendCalendarScreen.dart';
 
 /// Stateful class controlling the sign in page
 class FriendsListScreen extends StatefulWidget {
@@ -204,8 +205,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                           Spacer(),
                           GestureDetector(
                               onTap: () {
-                                //*****TODO: CALENDAR
-                                _setState(() {});
+                                goFriendCalendar(name, uid);
                               },
                               child: Icon(Icons.calendar_today_rounded, size: 30, color: Colors.white)
                           ),
@@ -267,5 +267,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
   void openFriendsPendingList() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => FriendsPendingScreen()));
+  }
+
+  void goFriendCalendar(String friendsName, String friendsId) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => FriendCalendarScreen({'friendsName':friendsName, 'friendsId': friendsId})));
   }
 }

@@ -135,18 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<dynamic> courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
     List<dynamic> eventList = ((await userRef.get()).data()!["events"] == null) ? [] : (await userRef.get()).data()!["events"];
-    print(eventList);
-    events.add(FlutterWeekViewEvent(
-      title: "title",
-      description: "des",
-      start: new DateTime(2022, 4, 26, 10, 30),
-      end: new DateTime(2022, 4, 26, 11, 30),
-      //start: new DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(start[3]), int.parse(start[4])),
-      //end: new DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(end[3]), int.parse(end[4])),
-    ));
-
     for (String event in eventList) {
-      //print(event);
       var _eventRef = store.collection("Events").doc(event);
       var query = await _eventRef.get();
       var format = DateFormat("yyyy:MM:dd:HH:mm");
@@ -159,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
       var eTime = query.data()!['endTime'];
       var et = format.format(eTime.toDate());
       List<String> end = et.split(':');
-      print(start);
       events.add(FlutterWeekViewEvent(
         title: query.data()!['name'],
         description: query.data()!['description'] + '\n' + query.data()!['location'],
@@ -170,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
       )
       );
     }
-    print(events);
     for (Map<String, dynamic> course in courseList) {
 
       // Parse class time (9:00 am - 2:00 pm) -> [09:00, 14:00]
@@ -201,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     }
-    print(events);
+    
     return events;
   }
 
