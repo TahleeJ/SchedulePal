@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'friendsListScreen.dart';
@@ -65,11 +64,12 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
             ),
             child: Card(
               margin: const EdgeInsets.only(
-                  top: 50, bottom: 50, left: 20, right: 20),
+                  top: 25, bottom: 50, left: 20, right: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(width: 15),
                         Text(
@@ -77,6 +77,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                           style: TextStyle(
                               fontSize: 30, fontWeight: FontWeight.bold),
                         ),
+                        Divider()
                       ]
                   ),
                   Padding(
@@ -104,7 +105,7 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                           case ConnectionState.waiting:
                             return CircularProgressIndicator();
                           case ConnectionState.done:
-                            if (snapshot.hasData) {
+                            if (snapshot.hasData && snapshot.data!.length > 0) {
                               return Container(
                                   height: 400,
                                   child: ListView.builder(
