@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
 
@@ -9,6 +10,7 @@ void main() async {
 
   // initializing the firebase app
   await Firebase.initializeApp();
+  await MobileAds.instance.initialize();
 
   // calling of runApp
   runApp(const GoogleSignIn());
