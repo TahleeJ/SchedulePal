@@ -258,7 +258,6 @@ class _InvitedEventsScreenState extends State<InvitedEventsScreen> {
 
   Future<void> declineEvent(String id) async {
     var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    // var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
 
     await userRef.update(
         { 'invited_events': FieldValue.arrayRemove([id]) }

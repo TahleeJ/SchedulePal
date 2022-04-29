@@ -366,8 +366,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
 }
 
   Future<Map<String, List<Map<String, dynamic>>>?> _fetchCourses() async {
-    // var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+    var userRef = store.collection('User').doc(auth.currentUser?.uid);
     var userSnapshot = await userRef.get();
 
     if (userSnapshot.exists) {
@@ -462,7 +461,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
   Future<Map<String, List<Map<String, dynamic>>>?> _fetchCustomEvents() async {
     var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    // var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
     var userSnapshot = await userRef.get();
     var eventCollection = store.collection("Events");
 
@@ -499,8 +497,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
   }
 
   Future<void> removeCourse(String crn) async {
-    // var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+    var userRef = store.collection('User').doc(auth.currentUser?.uid);
     var courseList = (await userRef.get()).data()!['courses'];
 
     for (Map<String, dynamic> course in courseList) {
@@ -521,8 +518,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
   }
 
   Future<void> removeEvent(String id) async {
-    // var userRef = store.collection('User').doc(auth.currentUser?.uid);
-    var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+    var userRef = store.collection('User').doc(auth.currentUser?.uid);
 
     await userRef.update(
       { 'events': FieldValue.arrayRemove([id]) }

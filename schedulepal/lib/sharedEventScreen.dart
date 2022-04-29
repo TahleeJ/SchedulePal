@@ -233,8 +233,7 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
       _eventData['startTime'] = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
       _eventData['endTime'] = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
     } else {
-      // var userRef = store.collection('User').doc(auth.currentUser?.uid);
-      var userRef = store.collection('User').doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1');
+      var userRef = store.collection('User').doc(auth.currentUser?.uid);
       var eventData = ((await userRef.get()).data()!['courses']).firstWhere((element) =>  element['crn'] == widget.eventId);
 
       List<String> times = eventData?['time'].split(' - ');
@@ -260,7 +259,7 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
 
   Future<List<Map<String, dynamic>>> getSharedFriends() async {
     var userCollection = store.collection('User');
-    var userSnapshot = await userCollection.doc('KsHbpcV4qfQzGJlgkJU1qmVjJ1s1').get();
+    var userSnapshot = await userCollection.doc(auth.currentUser?.uid).get();
     Map<String, dynamic> friends;
     List<Map<String, dynamic>> friendsList = [];
 
