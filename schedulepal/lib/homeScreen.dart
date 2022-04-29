@@ -5,13 +5,15 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_week_view/flutter_week_view.dart';
+import 'ad_helper.dart';
 import 'package:flutter/material.dart';
 import 'signInScreen.dart';
 import 'addCourseScreen.dart';
 import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
 import 'eventsListScreen.dart';
-import 'package:flutter_week_view/flutter_week_view.dart';
 
 /// Stateful class controlling the sign in page
 class HomeScreen extends StatefulWidget {
@@ -25,9 +27,39 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore store = FirebaseFirestore.instance;
 
+
   late Map<String, DateTime> weekDaysToDateTime = getDates();
   late List<DateTime> dates = weekDaysToDateTime.values.toList();
   late Future<List<FlutterWeekViewEvent>> events = getEvents(weekDaysToDateTime);
+
+  late BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
 
   bool zoomDay = true;
   double dayZoom = 110;
@@ -82,8 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Stack(
         children: [
           Positioned(
-            right: 25,
-            bottom: 25,
+            right: 0,
+            bottom: 75,
             child: FloatingActionButton(
               onPressed: () => showAlertDialog(context),
               //onPressed: () => _addObject(context),
@@ -93,8 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ),
           Positioned(
-            left: 75,
-            bottom: 25,
+            right: 0,
+            bottom: 140,
             child: FloatingActionButton(
               onPressed: () => changeZoom(),
               //onPressed: () => _addObject(context),
@@ -102,7 +134,16 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Icon(zoomDay ? Icons.zoom_out_rounded : Icons.zoom_in_rounded),
               heroTag: 'Zoom'
             )
-          )
+          ),
+          if (_isBannerAdReady)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: _bannerAd.size.width.toDouble(),
+                height: _bannerAd.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd),
+              ),
+            ),
         ]
       )
     );
@@ -135,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<dynamic> courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
     List<dynamic> eventList = ((await userRef.get()).data()!["events"] == null) ? [] : (await userRef.get()).data()!["events"];
+
     for (String event in eventList) {
       var _eventRef = store.collection("Events").doc(event);
       var query = await _eventRef.get();
@@ -158,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
       )
       );
     }
-    for (Map<String, dynamic> course in courseList) {
 
+    for (Map<String, dynamic> course in courseList) {
       // Parse class time (9:00 am - 2:00 pm) -> [09:00, 14:00]
       List<String> times = course['time'].split(' - ');
       for (int i = 0; i < times.length; i++) {
@@ -170,7 +212,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       DateTime startTime = DateFormat("hh:mm a").parse(times[0]);
       DateTime endTime = DateFormat("hh:mm a").parse(times[1]);
-
       // Parse class days (MWF -> MM/DD/YYYY)
       for (String day in course['days'].split('')) {
         DateTime date = weekDayToDateTime[day];

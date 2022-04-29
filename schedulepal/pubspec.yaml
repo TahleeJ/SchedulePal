@@ -36,6 +36,7 @@ dependencies:
   google_sign_in: ^5.2.3
   cloud_firestore: ^3.1.6
   time_planner: ^0.0.4
+  google_mobile_ads: ^0.13.0
 
   flutter_week_view:
     path: packages/FlutterWeekView-master
