@@ -56,9 +56,8 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
         backgroundColor: Colors.pink[300],
         centerTitle: true,
         title: Text(widget.data['friendsName'] + "'s Calendar"),
+        leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back),),
         actions: <Widget>[
-          // Sign out button
-          IconButton(onPressed: () => {openFriendsList()}, icon: Icon(Icons.accessibility, size: 26.0), tooltip: "Friend List"),
           IconButton(onPressed: changeZoom, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
             tooltip: "Sign Out",),
