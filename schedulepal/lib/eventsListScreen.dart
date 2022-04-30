@@ -251,7 +251,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white)),
+                                  Text(eventData['title'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white), maxLines: 2),
                                   Divider(),
                                   Text('${eventData['startTime']}-${eventData['endTime']}', style: TextStyle(fontSize: 12, decoration:! _isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white)),
                                   Text(eventData['location'], style: TextStyle(fontSize: 12, decoration: !_isRemoved ? TextDecoration.none : TextDecoration.lineThrough, color: Colors.white))
