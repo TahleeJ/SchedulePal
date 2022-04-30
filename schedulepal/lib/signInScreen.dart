@@ -79,6 +79,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         border: UnderlineInputBorder(),
                         labelText: 'password',
                       ),
+                      obscureText: true,
                     ),
                   ),
                   ElevatedButton(
