@@ -148,7 +148,7 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                                       padding: EdgeInsets.all(10.0),
                                       itemCount: snapshot.data!.length,
                                       itemBuilder: (BuildContext context, int index) {
-                                        return _buildIncomingRequest(
+                                        return _buildOutgoingRequest(
                                             snapshot.data![index]["uid"],
                                             snapshot.data![index]["name"]
                                         );
@@ -361,13 +361,13 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
     var userId = auth.currentUser!.uid;
 
     var userRef = store.collection("User").doc(uid);
-    Map<String, dynamic> friendsList = (await userRef.get()).data()!["friends"][userId];
-    friendsList.addAll(Map.fromIterables(["status"], [0]));
+    Map<String, dynamic> friendsList = (await userRef.get()).data()!["friends"];
+    friendsList[userId] = 0;
     await userRef.update({"friends": friendsList});
 
     userRef = store.collection("User").doc(userId);
-    friendsList = (await userRef.get()).data()!["friends"][uid];
-    friendsList.addAll(Map.fromIterables(["status"], [0]));
+    friendsList = (await userRef.get()).data()!["friends"];
+    friendsList[uid] = 0;
     await userRef.update({"friends": friendsList});
 
     _incomingList = _getRequests(1);

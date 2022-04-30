@@ -145,11 +145,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     var userSnapshot = await userCollection.doc(auth.currentUser?.uid).get();
 
     Map<String, dynamic> friends;
-
-    // List to structurally hold all of a user's tasks in maps:
-    // {name: task's name},
-    // {latitude: task location's latitude},
-    // {longitude: task location's longitude}
     List<Map<String, dynamic>> friendsList = [];
 
     if (userSnapshot.exists) {
@@ -161,7 +156,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
 
         if (friendType == 0) {
           var friendData = (await userCollection.doc(friendEntry.key).get()).data();
-
           friendsList.add(Map.fromIterables(["uid", "name"], [friendEntry.key, friendData?["name"]]));
         }
       });
