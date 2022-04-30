@@ -230,8 +230,8 @@ class _SharedEventScreenState extends State<SharedEventScreen> {
       _eventData['description'] = eventData?['description'];
       _eventData['location'] = eventData?['location'];
       _eventData['date'] = DateFormat('MM/dd/yyyy').format(eventData?['date'].toDate());
-      _eventData['startTime'] = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
-      _eventData['endTime'] = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
+      _eventData['startTime'] = DateFormat('hh:mm a').format(eventData?['startTime'].toDate());;
+      _eventData['endTime'] = DateFormat('hh:mm a').format(eventData?['endTime'].toDate());;
     } else {
       var userRef = store.collection('User').doc(auth.currentUser?.uid);
       var eventData = ((await userRef.get()).data()!['courses']).firstWhere((element) =>  element['crn'] == widget.eventId);

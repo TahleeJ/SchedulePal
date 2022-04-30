@@ -129,17 +129,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     );
   }
 
-  /// Navigates back to the home screen
-  void goHome() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => HomeScreen()));
-  }
-
-  void goAddFriend() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => AddFriendScreen()));
-  }
-
   Future<List<Map<String, dynamic>>> _getFriendsList() async {
     var userCollection = store.collection('User');
     var userSnapshot = await userCollection.doc(auth.currentUser?.uid).get();
@@ -244,6 +233,18 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     _friendsList = _getFriendsList();
   }
 
+  /// Navigates back to the home screen
+  void goHome() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+  }
+
+  /// Navigates to the add friend screen
+  void goAddFriend() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => AddFriendScreen()));
+  }
+
   /// Signs out the currently signed in user and navigates to the sign in screen
   Future<void> _signOut() async {
     await auth.signOut();
@@ -258,11 +259,13 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         context, MaterialPageRoute(builder: (context) => SignInScreen()));
   }
 
+  /// Navigates to the pending friends request list
   void openFriendsPendingList() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => FriendsPendingScreen()));
   }
 
+  /// Navigates to a screen comparing the user's calendar to the selected friend's
   void goFriendCalendar(String friendsName, String friendsId) {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => FriendCalendarScreen({'friendsName':friendsName, 'friendsId': friendsId})));
