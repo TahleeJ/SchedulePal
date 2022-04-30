@@ -10,6 +10,7 @@ import 'signInScreen.dart';
 import 'addCourseScreen.dart';
 import 'addEventScreen.dart';
 import 'friendsListScreen.dart';
+import 'homeScreen.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 
 /// Stateful class controlling the sign in page
@@ -31,6 +32,7 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
   bool comparing = false;
   late Future<List<FlutterWeekViewEvent>> events = getEvents(auth.currentUser!.uid, widget.data['friendsId'], weekDaysToDateTime);
 
+  bool zoomDay = true;
   double dayZoom = 110;
   double weekZoom = 250;
   void changeZoom() {
@@ -43,6 +45,8 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
         dayZoom = 110;
         weekZoom = 250;
       }
+
+      zoomDay = !zoomDay;
     });
   }
 
@@ -58,7 +62,7 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
         title: Text(widget.data['friendsName'] + "'s Calendar"),
         leading: IconButton(onPressed: () =>{openFriendsList()}, icon: Icon(Icons.arrow_back),),
         actions: <Widget>[
-          IconButton(onPressed: changeZoom, icon: Icon(Icons.event_rounded, size: 26.0), tooltip: "Events List"),
+          IconButton(onPressed: () => {goHome()}, icon: Icon(Icons.home_rounded, size: 26.0)),
           IconButton(onPressed: () => {_signOut()}, icon: Icon(Icons.exit_to_app_outlined, size: 26.0, ),
             tooltip: "Sign Out",),
         ],
@@ -85,13 +89,30 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
             }
           }
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => setState(() => comparing = !comparing),
-        tooltip: 'Compare Schedules',
-        label: Text('Compare Calendars'),
-        icon: Icon(Icons.people_alt_outlined),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                    onPressed: () => changeZoom(),
+                    tooltip: zoomDay ? 'Week View' : 'Day View',
+                    child: Icon(zoomDay ? Icons.zoom_out_rounded : Icons.zoom_in_rounded),
+                    heroTag: 'Zoom'
+                ),
+            ),
+            SizedBox(height: 10,),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton.extended(
+                onPressed: () => setState(() => comparing = !comparing),
+                tooltip: 'Compare Schedules',
+                label: Text('Compare Calendars'),
+                icon: Icon(Icons.people_alt_outlined),
+                ),
+            ),
+        ],
       ),
-
     );
   }
   /// Get range of DateTimes from SUN -> SAT
@@ -202,6 +223,11 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     googleSignIn.disconnect();
     goSignIn();
+  }
+
+  void goHome() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 
   /// Navigates to the home page screen
