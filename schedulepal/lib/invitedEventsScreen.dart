@@ -147,6 +147,7 @@ class _InvitedEventsScreenState extends State<InvitedEventsScreen> {
 
   Widget _buildEvent(Map<String, dynamic> eventData, Color cardColor) {
     bool _isRemoved = false;
+    bool _isAccepted = false;
 
     return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -180,12 +181,12 @@ class _InvitedEventsScreenState extends State<InvitedEventsScreen> {
                           GestureDetector(
                               onTap: () {
                                 _setState(() {
-                                  _isRemoved = true;
+                                  _isAccepted = true;
 
                                   acceptEvent(eventData['id']);
                                 });
                               },
-                              child: Icon(Icons.check_circle_rounded)
+                              child: Icon(!_isAccepted ? Icons.check_circle_rounded : null)
                           ),
                           GestureDetector(
                               onTap: () {
@@ -195,7 +196,7 @@ class _InvitedEventsScreenState extends State<InvitedEventsScreen> {
                                   declineEvent(eventData['id']);
                                 });
                               },
-                              child: Icon(Icons.highlight_remove_rounded)
+                              child: Icon(!_isRemoved ? Icons.highlight_remove_rounded : null)
                           ),
                           GestureDetector(
                               onTap: () {
