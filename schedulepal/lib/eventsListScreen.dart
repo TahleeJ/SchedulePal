@@ -103,29 +103,31 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               Map<String, List<Map<String, dynamic>>?> eventsMap = Map.from(snapshot.data as Map<String, List<Map<String, dynamic>>?>);
                               var eventDates = eventsMap.keys.toList();
 
-                              return Container(
-                                height: MediaQuery.of(context).size.height - 175,
-                                child: ListView.builder(
-                                  padding: EdgeInsets.all(10.0),
-                                  itemCount: eventsMap.length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text(eventDates[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.black)),
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: ClampingScrollPhysics(),
-                                          itemCount: eventsMap[eventDates[index]]!.length,
-                                          itemBuilder: (BuildContext eventContext, int eventIndex) {
-                                            return eventsMap[eventDates[index]]![eventIndex]['custom'] ?
-                                              _buildEvent(eventsMap[eventDates[index]]![eventIndex], cardColors[index % cardColors.length]) :
-                                              _buildCourse(eventsMap[eventDates[index]]![eventIndex], cardColors[index % cardColors.length]);
-                                          }
-                                        )
-                                      ],
-                                    );
-                                  }
+                              return Expanded(
+                                child: Container(
+                                  height: MediaQuery.of(context).size.height - 175,
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.all(10.0),
+                                    itemCount: eventsMap.length,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(eventDates[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.black)),
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: ClampingScrollPhysics(),
+                                            itemCount: eventsMap[eventDates[index]]!.length,
+                                            itemBuilder: (BuildContext eventContext, int eventIndex) {
+                                              return eventsMap[eventDates[index]]![eventIndex]['custom'] ?
+                                                _buildEvent(eventsMap[eventDates[index]]![eventIndex], cardColors[index % cardColors.length]) :
+                                                _buildCourse(eventsMap[eventDates[index]]![eventIndex], cardColors[index % cardColors.length]);
+                                            }
+                                          )
+                                        ],
+                                      );
+                                    }
+                                  ),
                                 ),
                               );
                             } else {

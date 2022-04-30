@@ -173,12 +173,6 @@ class CourseWidget extends StatelessWidget {
             children: <Widget>[
               Column(
                   children: <Widget>[
-                    Icon(Icons.book),
-                  ]
-              ),
-              Spacer(),
-              Column(
-                  children: <Widget>[
                     Text(course.number, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                     Text(course.title, style: TextStyle(fontSize: 10)),
                   ]
