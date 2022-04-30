@@ -351,9 +351,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                   backgroundColor: Colors.white
                               )
                           ),
-                          Padding(
-                              padding: EdgeInsets.only(right: 15.0),
-                              child: Text(name, style: TextStyle(fontSize: 20, color: Colors.white))
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 275,
+                            child: Padding(
+                                padding: EdgeInsets.only(right: 15.0),
+                                child: Text(name, style: TextStyle(fontSize: 20, color: Colors.white), overflow: TextOverflow.fade, softWrap: false)
+                            )
                           ),
                           Spacer(),
                           GestureDetector(

@@ -222,9 +222,12 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                                   backgroundColor: Colors.white
                               )
                           ),
-                          Padding(
-                              padding: EdgeInsets.only(right: 15.0),
-                              child: Text(name, style: TextStyle(fontSize: 20, color: Colors.white))
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width - 275,
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 15.0),
+                                  child: Text(name, style: TextStyle(fontSize: 20, color: Colors.white), overflow: TextOverflow.fade, softWrap: false)
+                              )
                           ),
                           Spacer(),
                           GestureDetector(
@@ -276,11 +279,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     var userSnapshot = await userCollection.doc(auth.currentUser?.uid).get();
 
     Map<String, dynamic> friends;
-
-    // List to structurally hold all of a user's tasks in maps:
-    // {name: task's name},
-    // {latitude: task location's latitude},
-    // {longitude: task location's longitude}
     List<Map<String, dynamic>> friendsList = [];
 
     if (userSnapshot.exists) {
