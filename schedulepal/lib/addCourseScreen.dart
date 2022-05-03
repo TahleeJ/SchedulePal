@@ -171,35 +171,44 @@ class CourseWidget extends StatelessWidget {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Column(
-                  children: <Widget>[
-                    Text(course.number, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                    Text(course.title, style: TextStyle(fontSize: 10)),
-                  ]
+              Expanded(
+                flex: 3,
+                child: Column(
+                    children: <Widget>[
+                      Text(course.number, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                      Text(course.title, style: TextStyle(fontSize: 10), textAlign: TextAlign.center),
+                    ]
+                ),
               ),
-              Spacer(),
-              Column(
-                  children: <Widget>[
-                    Text(course.instructors, style: TextStyle(fontSize: 8)),
-                    Text(course.location, style: TextStyle(fontSize: 8)),
-                    Text(course.time, style: TextStyle(fontSize: 8)),
-                    Text(course.days, style: TextStyle(fontSize: 8)),
-                  ]
+
+              Expanded(
+                flex: 5,
+                child: Column(
+                    children: <Widget>[
+                      Text(course.instructors, style: TextStyle(fontSize: 8), overflow: TextOverflow.ellipsis),
+                      Text(course.location, style: TextStyle(fontSize: 8)),
+                      Text(course.time, style: TextStyle(fontSize: 8)),
+                      Text(course.days, style: TextStyle(fontSize: 8)),
+                    ]
+                ),
               ),
-              Spacer(),
-              Column(
-                  children: <Widget>[
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(5)
+
+              Expanded(
+                flex: 2,
+                child: Column(
+                    children: <Widget>[
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(5)
+                        ),
+                        child: const Icon(Icons.add, size: 20),
+                        onPressed: () {
+                          handleAddCourse();
+                        },
                       ),
-                      child: const Icon(Icons.add, size: 20),
-                      onPressed: () {
-                        handleAddCourse();
-                      },
-                    ),
-                  ]
+                    ]
+                ),
               ),
             ]
         )
