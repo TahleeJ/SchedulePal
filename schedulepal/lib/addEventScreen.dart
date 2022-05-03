@@ -369,7 +369,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                   }
                                 });
                               },
-                              child: Icon(!_isInvited ? Icons.check_circle_outline_rounded : Icons.highlight_remove_rounded, size: 30, color: Colors.black45)
+                              child: Icon(!_isInvited ? Icons.add_circle_rounded : Icons.highlight_remove_rounded, size: 30, color: Colors.black45)
                           )
                         ],
                       )

@@ -266,6 +266,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               GestureDetector(
                                   onTap: () {
                                     _setState(() {
+                                      _isRemoved = true;
                                       removedCourses.add(eventData['crn']);
 
                                       removeCourse(eventData['crn']);
