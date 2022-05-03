@@ -315,7 +315,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     );
 
     AlertDialog dateAlert = AlertDialog(
-        title: const Text("Invite Friends"),
+        title: const Text("Edit Invited Friends"),
         content:
         Container(
             height: 800,
