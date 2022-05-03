@@ -73,7 +73,7 @@ class _InvitedEventsScreenState extends State<InvitedEventsScreen> {
             ),
             child: Card(
               margin: const EdgeInsets.only(
-                  top: 25, bottom: 50, left: 20, right: 20),
+                  top: 20, bottom: 0, left: 20, right: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[

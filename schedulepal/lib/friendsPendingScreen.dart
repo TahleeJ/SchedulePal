@@ -141,22 +141,24 @@ class _FriendsPendingScreenState extends State<FriendsPendingScreen> {
                             return const CircularProgressIndicator();
                           case ConnectionState.done:
                             if (snapshot.hasData && snapshot.data!.length > 0) {
-                              return Container(
-                                  height: MediaQuery.of(context).size.height / 3,
-                                  child: (snapshot.data!.length > 0) ?
-                                  ListView.builder(
-                                      padding: EdgeInsets.all(10.0),
-                                      itemCount: snapshot.data!.length,
-                                      itemBuilder: (BuildContext context, int index) {
-                                        return _buildOutgoingRequest(
-                                            snapshot.data![index]["uid"],
-                                            snapshot.data![index]["name"]
-                                        );
-                                      }
-                                  ) : Text(
-                                    "No Requests",
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  )
+                              return Expanded(
+                                child: Container(
+                                    height: MediaQuery.of(context).size.height / 3,
+                                    child: (snapshot.data!.length > 0) ?
+                                    ListView.builder(
+                                        padding: EdgeInsets.all(10.0),
+                                        itemCount: snapshot.data!.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          return _buildOutgoingRequest(
+                                              snapshot.data![index]["uid"],
+                                              snapshot.data![index]["name"]
+                                          );
+                                        }
+                                    ) : Text(
+                                      "No Requests",
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    )
+                                ),
                               );
                             } else {
                               return Text(

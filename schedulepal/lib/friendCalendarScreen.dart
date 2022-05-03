@@ -142,6 +142,32 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
     // Get Users events
     var userRef = store.collection("User").doc(userId);
     List<dynamic> courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
+    List<dynamic> eventList = ((await userRef.get()).data()!["events"] == null) ? [] : (await userRef.get()).data()!["events"];
+
+    for (String event in eventList) {
+      var _eventRef = store.collection("Events").doc(event);
+      var query = await _eventRef.get();
+      var format = DateFormat("yyyy:MM:dd:HH:mm");
+      var dTime = query.data()!['date'];
+      var dt = format.format(dTime.toDate());
+      List<String> date = dt.split(':');
+      var sTime = query.data()!['startTime'];
+      var st = format.format(sTime.toDate());
+      List<String> start = st.split(':');
+      var eTime = query.data()!['endTime'];
+      var et = format.format(eTime.toDate());
+      List<String> end = et.split(':');
+      events.add(FlutterWeekViewEvent(
+        title: query.data()!['name'],
+        description: query.data()!['description'] + '\n' + query.data()!['location'],
+        // start: new DateTime(int.parse(date[0]), int.parse(date[1]), 26, 10, 30),
+        // end: new DateTime(2022, 4, 26, 11, 30),
+        start: new DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(start[3]), int.parse(start[4])),
+        end: new DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(end[3]), int.parse(end[4])),
+        backgroundColor: Colors.blue
+      )
+      );
+    }
 
     for (Map<String, dynamic> course in courseList) {
 
@@ -178,6 +204,32 @@ class _FriendCalendarScreenState extends State<FriendCalendarScreen> {
     // Get Friends events
     userRef = store.collection("User").doc(friendId);
     courseList = ((await userRef.get()).data()!["courses"] == null) ? [] : (await userRef.get()).data()!["courses"];
+    eventList = ((await userRef.get()).data()!["events"] == null) ? [] : (await userRef.get()).data()!["events"];
+
+    for (String event in eventList) {
+      var _eventRef = store.collection("Events").doc(event);
+      var query = await _eventRef.get();
+      var format = DateFormat("yyyy:MM:dd:HH:mm");
+      var dTime = query.data()!['date'];
+      var dt = format.format(dTime.toDate());
+      List<String> date = dt.split(':');
+      var sTime = query.data()!['startTime'];
+      var st = format.format(sTime.toDate());
+      List<String> start = st.split(':');
+      var eTime = query.data()!['endTime'];
+      var et = format.format(eTime.toDate());
+      List<String> end = et.split(':');
+      events.add(FlutterWeekViewEvent(
+        title: query.data()!['name'],
+        description: query.data()!['description'] + '\n' + query.data()!['location'],
+        // start: new DateTime(int.parse(date[0]), int.parse(date[1]), 26, 10, 30),
+        // end: new DateTime(2022, 4, 26, 11, 30),
+        start: new DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(start[3]), int.parse(start[4])),
+        end: new DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(end[3]), int.parse(end[4])),
+        backgroundColor: Colors.purple
+      )
+      );
+    }
 
     for (Map<String, dynamic> course in courseList) {
 

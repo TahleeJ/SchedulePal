@@ -193,53 +193,55 @@ class _AddEventScreenState extends State<AddEventScreen> {
     AlertDialog dateAlert = AlertDialog(
         title: const Text("Add Date and Time"),
         content:
-        Container(
-            height: 800,
-            width: 300,
-            child: Column(
-              children: <Widget>[
-                Container(
-                    height: 150,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: _date,
-                      onDateTimeChanged: (DateTime newDateTime) {
-                        _date = newDateTime;
-                      },
-                      use24hFormat: false,
-                      minuteInterval: 1,
-                    )
-                ),
-                Divider(),
-                Text('From', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Container(
-                    height: 150,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.time,
-                      initialDateTime: new DateTime.now(),
-                      onDateTimeChanged: (DateTime newDateTime) {
-                        _startTime = newDateTime;
-                      },
-                      use24hFormat: false,
-                      minuteInterval: 1,
-                    )
-                ),
-                Divider(),
-                Text('To', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Container(
-                    height: 150,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.time,
-                      initialDateTime: new DateTime.now().add(Duration(minutes: 30)),
-                      onDateTimeChanged: (DateTime newDateTime) {
-                        _endTime = newDateTime;
-                      },
-                      use24hFormat: false,
-                      minuteInterval: 1,
-                    )
-                )
-              ],
-            )
+        Expanded(
+          child: Container(
+              height: 800,
+              width: 300,
+              child: Column(
+                children: <Widget>[
+                  Container(
+                      height: 150,
+                      child: CupertinoDatePicker(
+                        mode: CupertinoDatePickerMode.date,
+                        initialDateTime: _date,
+                        onDateTimeChanged: (DateTime newDateTime) {
+                          _date = newDateTime;
+                        },
+                        use24hFormat: false,
+                        minuteInterval: 1,
+                      )
+                  ),
+                  Divider(),
+                  Text('From', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Container(
+                      height: 125,
+                      child: CupertinoDatePicker(
+                        mode: CupertinoDatePickerMode.time,
+                        initialDateTime: new DateTime.now(),
+                        onDateTimeChanged: (DateTime newDateTime) {
+                          _startTime = newDateTime;
+                        },
+                        use24hFormat: false,
+                        minuteInterval: 1,
+                      )
+                  ),
+                  Divider(),
+                  Text('To', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Container(
+                      height: 125,
+                      child: CupertinoDatePicker(
+                        mode: CupertinoDatePickerMode.time,
+                        initialDateTime: new DateTime.now().add(Duration(minutes: 30)),
+                        onDateTimeChanged: (DateTime newDateTime) {
+                          _endTime = newDateTime;
+                        },
+                        use24hFormat: false,
+                        minuteInterval: 1,
+                      )
+                  )
+                ],
+              )
+          ),
         ),
         actions: [
           closeButton

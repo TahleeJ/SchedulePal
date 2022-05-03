@@ -132,7 +132,7 @@ class _SignUpScreenState extends State<SignUpScreen>{
         var userRef = await store.collection("User").doc(userCred.user!.uid);
         if (!(await userRef.get()).exists) {
           if (name == "null null") {
-            await userRef.set({"name": nameEntered, "friends": {}, "events": {}}, SetOptions(merge: false));
+            await userRef.set({"name": nameEntered, "friends": {}, "events": [], "courses": []}, SetOptions(merge: false));
           } else {
             await userRef.set({"name": name, "friends": {}}, SetOptions(merge: false));
           }
